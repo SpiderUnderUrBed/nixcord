@@ -21,7 +21,9 @@ let
 
   # Define regular expressions for GitHub and Git URLs
   regexGithub = "github:([[:alnum:].-]+)/([[:alnum:]/-]+)/([0-9a-f]{40})";
-  regexGit = "git[+]file:///([^/]+/)*([^/?]+)(\\?ref=[a-f0-9]{40})?$";
+  regexGit = "git[+]file://([^/]+/)*([^/?]+)(\\?ref=[a-f0-9]{40})?$";
+ # git[+]file://(([^/]+/)*)([^/?]+)(\\?ref=[a-f0-9]{40})?$
+
 
   # Define coercion functions for GitHub and Git
   coerceGithub = value: let
@@ -36,9 +38,10 @@ let
 
   coerceGit = value: let 
     matches = builtins.match regexGit value;
-    filepath = builtins.elemAt matches 1;   
+    name = builtins.elemAt matches 1;  
+    filepath = (builtins.elemAt matches 0) + name;   
     rev = builtins.elemAt matches 2;
-    cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
+     #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
   in lib.traceSeqN 2 {
     inherit value matches;  # Outputs the value and the regex matches for debugging
   } (builtins.fetchGit {
