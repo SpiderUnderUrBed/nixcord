@@ -37,16 +37,6 @@ let
   coerceGit = value: let 
     matches = builtins.match regexGit value;
         # Ensure matches are found
-    filepath = if matches != null then
-      # Get the whole match after `git+file://`
-      let
-        pathStartIndex = builtins.stringLength "git+file://";
-        fullPath = builtins.substring pathStartIndex (builtins.stringLength value) value;
-      in
-        # Extract the path up to the name
-        builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength (builtins.elemAt matches 1))) fullPath
-    else
-      null; 
     rev = if matches != null then 
       let
         rawRev = builtins.elemAt matches 2;
@@ -58,6 +48,17 @@ let
       in cleanedRev
     else 
       null;
+    filepath = if matches != null then
+      # Get the whole match after `git+file://`
+      let
+        pathStartIndex = builtins.stringLength "git+file://";
+        fullPath = builtins.substring pathStartIndex (builtins.stringLength value) value;
+        # Extract the path up to the name (before the revision)
+        pathWithoutRev = builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength rev)) fullPath;
+      in
+        pathWithoutRev
+    else
+      null; 
      #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
   in lib.traceSeqN 2 {
     inherit value matches;  # Outputs the value and the regex matches for debugging
