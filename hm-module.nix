@@ -304,10 +304,12 @@ in {
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
 
-    applyPostPatch = pkg: pkg.overrideAttrs {
-      postPatch = ''
-       ln -s src/userplugins ${lib.escapeShellArg userPluginsDirectory}
-     '';
+  applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
+    postPatch = ''
+      ln -s ${lib.escapeShellArg (builtins.toString userPluginsDirectory)}/src/userplugins ${lib.escapeShellArg ./userplugins}
+    '';
+  });
+
     #  postPatch = lib.concatLines(
     #    lib.optional (cfg.userPlugins != {}) "mkdir -p src/userplugins"
     #      ++ lib.mapAttrsToList (name: path: "ln -s ${lib.escapeShellArg path} src/userplugins/${lib.escapeShellArg name} && ls src/userplugins") cfg.userPlugins
