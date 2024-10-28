@@ -107,7 +107,12 @@ let
   #pluginOutputs = lib.attrValues pluginDerivations; 
 
   #userPluginsDirectory = pkgs.linkFarm "userPlugins" pluginDerivations;
-  userPluginsDirectory = lib.traceSeqN 1 (builtins.toString pluginDerivations) pkgs.linkFarm "userPlugins" pluginDerivations;
+  #userPluginsDirectory = lib.traceSeqN 1 (builtins.toString pluginDerivations) pkgs.linkFarm "userPlugins" pluginDerivations;
+userPluginsDirectory = let
+  debugInfo = lib.concatMapStringsSep "\n" (name: 
+    "${name}: ${builtins.toJSON (pluginDerivations.${name})}"
+  ) (lib.attrNames pluginDerivations);
+in lib.traceSeqN 1 debugInfo pkgs.linkFarm "userPlugins" pluginDerivations;
 
   # "userPlugins" {
    # inherit pluginOutputs;  
