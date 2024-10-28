@@ -356,12 +356,11 @@ in {
 
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
-        ${lib.trace "Current directory (PWD): ${builtins.getEnv "OLDPWD"}" ""}
-        ls
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
     });
-
+#     ${lib.trace "Current directory (PWD): ${builtins.getEnv "OLDPWD"}" ""}
+#        ls
     # nixpkgs is always really far behind
     # so instead we maintain our own vencord package
     vencord = applyPostPatch (

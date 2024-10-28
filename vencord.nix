@@ -56,7 +56,6 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   buildPhase = ''
-   ${lib.trace "Current directory (PWD): ${builtins.getEnv "PWD"}" ""}
     runHook preBuild
 
     pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
@@ -66,7 +65,6 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   installPhase = ''
-   ${lib.trace "Current directory (PWD): ${builtins.getEnv "PWD"}" ""}
     runHook preInstall
 
     cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
