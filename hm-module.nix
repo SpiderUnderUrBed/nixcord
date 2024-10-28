@@ -347,15 +347,13 @@ in {
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
 
-    applyPostPatch = pkg: pkg.overrideAttrs {
+    applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
-       ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
-     '';
-    #  postPatch = lib.concatLines(
-    #    lib.optional (cfg.userPlugins != {}) "mkdir -p src/userplugins"
-    #      ++ lib.mapAttrsToList (name: path: "ln -s ${lib.escapeShellArg path} src/userplugins/${lib.escapeShellArg name} && ls src/userplugins") cfg.userPlugins
-    #  );
-    };
+        echo "userPluginsDirectory: ${lib.traceSeqN 1 userPluginsDirectory}"
+        ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+      '';
+    });
+
     # nixpkgs is always really far behind
     # so instead we maintain our own vencord package
     vencord = applyPostPatch (
