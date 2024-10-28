@@ -62,6 +62,20 @@ let
         (attrsets.recursiveUpdate (builtins.elemAt list 0) (builtins.elemAt list 1))
       ] ++ (lists.drop 2 list));
 
+  pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
+
+  userPluginsDirectory = pkgs.linkFarm {
+    inherit (pluginDerivations) outputs;
+    name = "user-plugins";
+  };
+  #  userPluginsDirectory = pkgs.runCommand "user-plugins-directory" { } ''
+  #  mkdir -p $out
+  #  for plugin in ${lib.concatStringsSep " " (lib.attrNames config.userPlugins)}; do
+  #    plugin_value=${config.userPlugins.${plugin}}
+  #    pluginMapper "${plugin_value}" > $out/${plugin}
+  #  done
+  #'';
+
 in {
   options.programs.nixcord = {
     enable = mkEnableOption "Enables Discord with Vencord";
@@ -233,7 +247,7 @@ in {
       ]);
 
       # Set default values by mapping the userPlugins with the pluginMapper
-      default = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
+      #default = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
 
       # Example usage of the userPlugins option
       example = {
