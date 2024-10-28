@@ -76,14 +76,12 @@ let
     else
       null; 
      #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
-  in lib.traceSeqN 2 {
-    inherit value matches;  # Outputs the value and the regex matches for debugging
-  } (builtins.fetchGit {
+  in builtins.fetchGit {
     url = filepath;
     allRefs = true;
     #ref = "main";
     inherit rev;
-  });
+  };
 
 
   # Mapper function that applies coercion based on the regex match
