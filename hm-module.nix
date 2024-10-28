@@ -44,7 +44,7 @@ let
         fullPath = builtins.substring pathStartIndex (builtins.stringLength value) value;
       in
         # Extract the path up to the name
-        builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength (builtins.elemAt matches 2))) fullPath
+        builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength (builtins.elemAt matches 1))) fullPath
     else
       null; 
     rev = if matches != null then 
