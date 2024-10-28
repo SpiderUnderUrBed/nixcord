@@ -41,26 +41,36 @@ let
       let
         rawRev = builtins.elemAt matches 2;
         # Remove the ?ref= prefix if it exists
-        cleanedRev = if builtins.substring 0 5 rawRev == "?ref=" then
-          builtins.substring 5 (builtins.stringLength rawRev) rawRev
-        else
-          null;
+        cleanedRev = builtins.substring 5 (builtins.stringLength rawRev) rawRev;
+        #if builtins.substring 0 5 rawRev == "?ref=" then
+         # builtins.substring 5 (builtins.stringLength rawRev) rawRev
+        #else
+         # null;
       in cleanedRev
     else 
       null;
     filepath = if matches != null then
       # Get the whole match after `git+file://`
-      let
-        pathStartIndex = builtins.stringLength "git+file://";
-        fullPath = builtins.substring pathStartIndex (builtins.stringLength value) value;
-        pathWithoutRev = builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength rev)) fullPath;
-        refSuffix = "?ref=";
-        refSuffixLength = builtins.stringLength refSuffix;
-        ending = builtins.substring (builtins.stringLength pathWithoutRev - refSuffixLength) refSuffixLength pathWithoutRev;
-        finalPath = if ending == refSuffix then
-          builtins.substring 0 (builtins.stringLength pathWithoutRev - refSuffixLength) pathWithoutRev
-        else
-          pathWithoutRev;
+      let      
+        # Define the length adjustments
+        startOffset = 5;  # Remove 5 characters from the beginning
+        endOffset = 45;   # Remove 25 characters from the end
+
+        # Calculate the adjusted filepath
+        fullLength = builtins.stringLength value;
+        adjustedPathLength = fullLength - startOffset - endOffset;
+
+        finalPath = builtins.substring startOffset adjustedPathLength value;
+#        pathStartIndex = builtins.stringLength "git+file://";
+#        fullPath = builtins.substring pathStartIndex (builtins.stringLength value) value;
+#        pathWithoutRev = builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength rev)) fullPath;
+#        refSuffix = "?ref=";
+#        refSuffixLength = builtins.stringLength refSuffix;
+#        ending = builtins.substring (builtins.stringLength pathWithoutRev - refSuffixLength) refSuffixLength pathWithoutRev;
+#        finalPath = if ending == refSuffix then
+#          builtins.substring 0 (builtins.stringLength pathWithoutRev - refSuffixLength) pathWithoutRev#
+#        else
+#          pathWithoutRev;
       in
         finalPath
     else
