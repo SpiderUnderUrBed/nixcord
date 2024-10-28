@@ -82,7 +82,7 @@ in {
   url = filepath;
   ref = "main";
   inherit (revCondition) rev;
-})
+});
 
 
   # Mapper function that applies coercion based on the regex match
