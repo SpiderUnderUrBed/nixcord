@@ -314,7 +314,7 @@ in {
     #    lib.optional (cfg.userPlugins != {}) "mkdir -p src/userplugins"
     #      ++ lib.mapAttrsToList (name: path: "ln -s ${lib.escapeShellArg path} src/userplugins/${lib.escapeShellArg name} && ls src/userplugins") cfg.userPlugins
     #  );
-    };
+   # };
     # nixpkgs is always really far behind
     # so instead we maintain our own vencord package
     vencord = applyPostPatch (
