@@ -55,6 +55,9 @@ let
           builtins.substring 5 (builtins.stringLength rawRev) rawRev
         else
           null;
+      in cleanedRev
+    else 
+      null;
      #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
   in lib.traceSeqN 2 {
     inherit value matches;  # Outputs the value and the regex matches for debugging
