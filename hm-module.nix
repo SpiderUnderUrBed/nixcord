@@ -349,7 +349,6 @@ in {
 
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
-        #echo "userPluginsDirectory: ${lib.traceSeqN 1 userPluginsDirectory}"
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
     });
