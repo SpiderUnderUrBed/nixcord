@@ -355,9 +355,8 @@ in {
       mkVencordCfg;
 
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
-      #stdenv = oldAttrs.stdenv;
       postPatch = ''
-        ${lib.trace "Current build directory (PWD): ${oldAttrs.stdenv.pwd}" ""}
+        ${lib.trace "Current directory (PWD): ${builtins.getEnv "src"}" ""}
         ls
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
