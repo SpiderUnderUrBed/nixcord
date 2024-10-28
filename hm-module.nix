@@ -53,10 +53,15 @@ let
       let
         pathStartIndex = builtins.stringLength "git+file://";
         fullPath = builtins.substring pathStartIndex (builtins.stringLength value) value;
-        # Extract the path up to the name (before the revision)
         pathWithoutRev = builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength rev)) fullPath;
+        refSuffix = "?ref=";
+        refSuffixLength = builtins.stringLength refSuffix;
+        finalPath = if builtins.stringSlice pathWithoutRev (-refSuffixLength 0) pathWithoutRev == refSuffix then
+          builtins.substring 0 (builtins.stringLength pathWithoutRev - refSuffixLength) pathWithoutRev
+        else
+          pathWithoutRev;
       in
-        pathWithoutRev
+        finalPath
     else
       null; 
      #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
