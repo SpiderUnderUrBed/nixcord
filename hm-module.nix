@@ -47,7 +47,7 @@ let
         builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength (builtins.elemAt matches 2))) fullPath
     else
       null; 
-        rev = if matches != null then 
+    rev = if matches != null then 
       let
         rawRev = builtins.elemAt matches 2;
         # Remove the ?ref= prefix if it exists
