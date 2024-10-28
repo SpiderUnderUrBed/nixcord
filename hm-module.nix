@@ -355,6 +355,7 @@ in {
       mkVencordCfg;
 
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
+      stdenv = oldAttrs.stdenv;
       postPatch = ''
         ${lib.trace "Current build directory (PWD): ${stdenv.pwd}" ""}
         ls
