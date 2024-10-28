@@ -78,8 +78,8 @@ let
      #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
   in builtins.fetchGit {
     url = filepath;
-    allRefs = true;
-    #ref = "main";
+    #allRefs = true;
+    ref = "main";
     inherit rev;
   };
 
