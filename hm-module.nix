@@ -64,8 +64,10 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
 
+  pluginOutputs = lib.attrValues pluginDerivations; 
+
   userPluginsDirectory = pkgs.linkFarm "userPlugins" {
-    inherit (pluginDerivations) outputs;
+    inherit pluginOutputs;  
     name = "user-plugins";
   };
   #  userPluginsDirectory = pkgs.runCommand "user-plugins-directory" { } ''
