@@ -106,7 +106,7 @@ let
 
   #pluginOutputs = lib.attrValues pluginDerivations; 
 
-  userPluginsDirectory = lib.traceSeqN 1 "userPluginsDirectory" pkgs.linkFarm "userPlugins" pluginDerivations;
+  userPluginsDirectory = lib.traceSeqN 1 pluginDerivations pkgs.linkFarm "userPlugins" pluginDerivations;
   # "userPlugins" {
    # inherit pluginOutputs;  
    # name = "user-plugins";
