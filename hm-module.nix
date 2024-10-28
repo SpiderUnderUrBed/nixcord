@@ -356,7 +356,7 @@ in {
 
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
-        ${lib.trace "userPluginsDirectory: ${userPluginsDirectory}" ""}
+        ${lib.trace "Current directory (PWD): ${builtins.getEnv "PWD"}" ""}
         ls
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
