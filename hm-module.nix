@@ -106,7 +106,7 @@ let
 
   #pluginOutputs = lib.attrValues pluginDerivations; 
 
-  userPluginsDirectory = pkgs.linkFarm "userPlugins" pluginDerivations;
+  userPluginsDirectory = lib.traceSeqN 1 "userPluginsDirectory" pkgs.linkFarm "userPlugins" pluginDerivations;
   # "userPlugins" {
    # inherit pluginOutputs;  
    # name = "user-plugins";
@@ -349,7 +349,7 @@ in {
 
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
-        echo "userPluginsDirectory: ${lib.traceSeqN 1 userPluginsDirectory}"
+        #echo "userPluginsDirectory: ${lib.traceSeqN 1 userPluginsDirectory}"
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
     });
