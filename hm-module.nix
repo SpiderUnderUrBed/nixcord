@@ -76,12 +76,13 @@ let
     else
       null; 
      #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
-  in builtins.fetchGit {
-    url = filepath;
-    #allRefs = true;
-    ref = "main";
-    inherit rev;
-  };
+  in builtins.fetchGit (let
+  revCondition = if rev != "" then { rev = rev; } else {};
+in {
+  url = filepath;
+  ref = "main";
+  inherit (revCondition) rev;
+})
 
 
   # Mapper function that applies coercion based on the regex match
