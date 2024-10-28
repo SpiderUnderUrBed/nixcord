@@ -34,49 +34,46 @@ let
     inherit rev;
   };
 
-  coerceGit = value: let 
+  coerceGit = value: let
+    # Match using regex, assuming regexGit is defined and captures groups correctly
     matches = builtins.match regexGit value;
-        # Ensure matches are found
-    rev = if matches != null then 
+    # Set rev only if matches are found
+    rev = if matches != null then
       let
         rawRev = builtins.elemAt matches 2;
-        # Remove the ?ref= prefix if it exists
-        cleanedRev = builtins.substring 5 (builtins.stringLength rawRev) rawRev;
-        #if builtins.substring 0 5 rawRev == "?ref=" then
-         # builtins.substring 5 (builtins.stringLength rawRev) rawRev
-        #else
-         # null;
-      in cleanedRev
-    else 
-      null;
+      in
+        if rawRev != null && builtins.substring 0 5 rawRev == "?ref="
+        then builtins.substring 5 (builtins.stringLength rawRev) rawRev
+        else null
+    else null;
+    
+    # Set filepath only if matches are found
     filepath = if matches != null then
-      # Get the whole match after `git+file://`
-      let      
-        # Define the length adjustments
+      let
         startOffset = 4;  # Remove 5 characters from the beginning
         endOffset = 45;   # Remove 25 characters from the end
-
-        # Calculate the adjusted filepath
         fullLength = builtins.stringLength value;
         adjustedPathLength = fullLength - startOffset - endOffset;
-
-        finalPath = builtins.substring startOffset adjustedPathLength value;
-#        pathStartIndex = builtins.stringLength "git+file://";
-#        fullPath = builtins.substring pathStartIndex (builtins.stringLength value) value;
-#        pathWithoutRev = builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength rev)) fullPath;
-#        refSuffix = "?ref=";
-#        refSuffixLength = builtins.stringLength refSuffix;
-#        ending = builtins.substring (builtins.stringLength pathWithoutRev - refSuffixLength) refSuffixLength pathWithoutRev;
-#        finalPath = if ending == refSuffix then
-#          builtins.substring 0 (builtins.stringLength pathWithoutRev - refSuffixLength) pathWithoutRev#
-#        else
-#          pathWithoutRev;
       in
-        finalPath
-    else
-      null; 
-     #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
-  in builtins.fetchGit (let
+        builtins.substring startOffset adjustedPathLength value
+    else null;
+
+  in if filepath != null then
+    # Call fetchGit only if filepath is valid
+    builtins.fetchGit (
+      let
+        # Only include rev if it's non-null and non-empty
+        revCondition = if rev != null && rev != "" then { rev = rev; } else {};
+      in {
+        url = filepath;
+        ref = "main";
+        inherit (revCondition) rev;
+      }
+    )
+  else
+    throw "Failed to extract a valid filepath from the given value";
+
+in builtins.fetchGit (let
   revCondition = if rev != "" then { rev = rev; } else {};
 in {
   url = filepath;
