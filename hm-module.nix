@@ -56,7 +56,8 @@ let
         pathWithoutRev = builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength rev)) fullPath;
         refSuffix = "?ref=";
         refSuffixLength = builtins.stringLength refSuffix;
-        finalPath = if builtins.stringSlice pathWithoutRev (-refSuffixLength 0) pathWithoutRev == refSuffix then
+        ending = builtins.substring (builtins.stringLength pathWithoutRev - refSuffixLength) refSuffixLength pathWithoutRev;
+        finalPath = if ending == refSuffix then
           builtins.substring 0 (builtins.stringLength pathWithoutRev - refSuffixLength) pathWithoutRev
         else
           pathWithoutRev;
