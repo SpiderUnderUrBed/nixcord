@@ -64,7 +64,7 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
 
-  userPluginsDirectory = pkgs.linkFarm {
+  userPluginsDirectory = pkgs.linkFarm "userPlugins" {
     inherit (pluginDerivations) outputs;
     name = "user-plugins";
   };
@@ -304,17 +304,15 @@ in {
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
 
-  applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
-    postPatch = ''
-      ln -s ${lib.escapeShellArg (builtins.toString userPluginsDirectory)}/src/userplugins ${lib.escapeShellArg ./userplugins}
-    '';
-  });
-
+    applyPostPatch = pkg: pkg.overrideAttrs {
+      postPatch = ''
+       ln -s src/userplugins ${lib.escapeShellArg userPluginsDirectory}
+     '';
     #  postPatch = lib.concatLines(
     #    lib.optional (cfg.userPlugins != {}) "mkdir -p src/userplugins"
     #      ++ lib.mapAttrsToList (name: path: "ln -s ${lib.escapeShellArg path} src/userplugins/${lib.escapeShellArg name} && ls src/userplugins") cfg.userPlugins
     #  );
-   # };
+    };
     # nixpkgs is always really far behind
     # so instead we maintain our own vencord package
     vencord = applyPostPatch (
