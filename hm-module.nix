@@ -63,6 +63,7 @@ let
     inherit value matches;  # Outputs the value and the regex matches for debugging
   } (builtins.fetchGit {
     url = filepath;
+    ref = "main";
     inherit rev;
   });
 
