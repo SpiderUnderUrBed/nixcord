@@ -37,6 +37,7 @@ let
   coerceGit = value: let
     # Match using regex, assuming regexGit is defined and captures groups correctly
     matches = builtins.match regexGit value;
+
     # Set rev only if matches are found
     rev = if matches != null then
       let
@@ -46,7 +47,7 @@ let
         then builtins.substring 5 (builtins.stringLength rawRev) rawRev
         else null
     else null;
-    
+
     # Set filepath only if matches are found
     filepath = if matches != null then
       let
@@ -73,13 +74,7 @@ let
   else
     throw "Failed to extract a valid filepath from the given value";
 
-in builtins.fetchGit (let
-  revCondition = if rev != "" then { rev = rev; } else {};
-in {
-  url = filepath;
-  ref = "main";
-  inherit (revCondition) rev;
-});
+#in coerceGit
 
 
   # Mapper function that applies coercion based on the regex match
