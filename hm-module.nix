@@ -47,7 +47,14 @@ let
         builtins.substring 0 (builtins.stringLength fullPath - (builtins.stringLength (builtins.elemAt matches 2))) fullPath
     else
       null; 
-    rev = builtins.elemAt matches 2;
+        rev = if matches != null then 
+      let
+        rawRev = builtins.elemAt matches 2;
+        # Remove the ?ref= prefix if it exists
+        cleanedRev = if builtins.substring 0 5 rawRev == "?ref=" then
+          builtins.substring 5 (builtins.stringLength rawRev) rawRev
+        else
+          null;
      #cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
   in lib.traceSeqN 2 {
     inherit value matches;  # Outputs the value and the regex matches for debugging
