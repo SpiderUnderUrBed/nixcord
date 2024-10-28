@@ -64,12 +64,13 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
 
-  pluginOutputs = lib.attrValues pluginDerivations; 
+  #pluginOutputs = lib.attrValues pluginDerivations; 
 
-  userPluginsDirectory = pkgs.linkFarm "userPlugins" {
-    inherit pluginOutputs;  
-    name = "user-plugins";
-  };
+  userPluginsDirectory = pkgs.linkFarm "userPlugins" pluginDerivations;
+  # "userPlugins" {
+   # inherit pluginOutputs;  
+   # name = "user-plugins";
+  #};
   #  userPluginsDirectory = pkgs.runCommand "user-plugins-directory" { } ''
   #  mkdir -p $out
   #  for plugin in ${lib.concatStringsSep " " (lib.attrNames config.userPlugins)}; do
