@@ -358,7 +358,6 @@ in {
       postPatch = ''
         ${lib.trace "Current directory (PWD): ${builtins.getEnv "PWD"}" ""}
         ls
-        ls
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
     });
