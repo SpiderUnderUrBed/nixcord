@@ -51,8 +51,8 @@ let
     # Set filepath only if matches are found
     filepath = if matches != null then
       let
-        startOffset = 4;  # Remove 5 characters from the beginning
-        endOffset = 45;   # Remove 25 characters from the end
+        startOffset = 4;  # Remove 4 characters from the beginning
+        endOffset = 45;   # Remove 45 characters from the end
         fullLength = builtins.stringLength value;
         adjustedPathLength = fullLength - startOffset - endOffset;
       in
@@ -68,12 +68,13 @@ let
       in {
         url = filepath;
         ref = "main";
-        inherit (revCondition) rev;
-      }
+        # Use revCondition directly without trying to inherit rev
+        # This will prevent the missing rev error
+        # If revCondition is empty, it won't add the rev key
+      } // revCondition  # Combine the base attributes with revCondition
     )
   else
     throw "Failed to extract a valid filepath from the given value";
-
 #in coerceGit
 
 
