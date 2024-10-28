@@ -36,8 +36,9 @@ let
 
   coerceGit = value: let 
     matches = builtins.match regexGit value;
-    filepath = builtins.elemAt matches 0;   
-    rev = builtins.elemAt matches 1;
+    filepath = builtins.elemAt matches 1;   
+    rev = builtins.elemAt matches 2;
+    cleanedRev = builtins.substring 5 (builtins.stringLength rev) rev;
   in lib.traceSeqN 2 {
     inherit value matches;  # Outputs the value and the regex matches for debugging
   } (builtins.fetchGit {
