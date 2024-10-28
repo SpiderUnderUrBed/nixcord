@@ -356,8 +356,8 @@ in {
 
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
-        #SCRIPT_DIR=$(dirname "$(realpath "$0")")
-        ${lib.trace "Current directory (PWD): ${pkg}" ""}
+        ${lib.trace "Current directory (PWD): ${builtins.getEnv "PWD"}" ""}
+        ls
         ls
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
