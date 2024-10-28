@@ -105,7 +105,7 @@ let
 
   #pluginOutputs = lib.attrValues pluginDerivations; 
 
-  userPluginsDirectory = pkgs.linkFarm pluginDerivations "userPlugins";
+  userPluginsDirectory = pkgs.linkFarm "userPlugins" pluginDerivations;
   # "userPlugins" {
    # inherit pluginOutputs;  
    # name = "user-plugins";
@@ -348,7 +348,7 @@ in {
 
     applyPostPatch = pkg: pkg.overrideAttrs {
       postPatch = ''
-       ln -s src/userplugins ${lib.escapeShellArg userPluginsDirectory}
+       ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
      '';
     #  postPatch = lib.concatLines(
     #    lib.optional (cfg.userPlugins != {}) "mkdir -p src/userplugins"
