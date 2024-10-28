@@ -53,7 +53,7 @@ let
       # Get the whole match after `git+file://`
       let      
         # Define the length adjustments
-        startOffset = 5;  # Remove 5 characters from the beginning
+        startOffset = 4;  # Remove 5 characters from the beginning
         endOffset = 45;   # Remove 25 characters from the end
 
         # Calculate the adjusted filepath
