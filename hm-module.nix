@@ -355,7 +355,9 @@ in {
 #        ls
     # nixpkgs is always really far behind
     # so instead we maintain our own vencord package
-    vencord = applyPostPatch (
+vencord = applyPostPatch (
+  let
+    tracedVencord = lib.traceVal "Location of vencord" (
       pkgs.callPackage ./vencord.nix {
         inherit (pkgs)
           curl
@@ -370,8 +372,12 @@ in {
           stdenv
           writeShellScript;
         buildWebExtension = false;
-      } // lib.traceVal vencord
+      }
     );
+  in
+    tracedVencord
+);
+
 
 
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
