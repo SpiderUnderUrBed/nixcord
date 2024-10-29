@@ -368,10 +368,14 @@ in {
         passthru = {
           userPlugins = userPluginsDirectory;
         };
-        postPatch = ''
-          #mkdir -p $out/src/userplugins 
-          ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+        buildPhase = ''
+        ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+        ${oldAttrs.buildPhase}
         '';
+        #postPatch = ''
+        #  #mkdir -p $out/src/userplugins 
+        #  ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+        #'';
       })
     );
 
