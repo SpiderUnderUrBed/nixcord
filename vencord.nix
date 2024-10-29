@@ -72,10 +72,13 @@ stdenv.mkDerivation (finalAttrs: {
 
     runHook postInstall
 
-    rm -rf $out/src
-    mv $out/dist/* $out
-    rm -rf $out/dist
 
+  '';
+
+  fixupPhase = ''
+      #rm -rf $out/src
+      mv $out/dist/* $out
+      rm -rf $out/dist
   '';
 
   # We need to fetch the latest *tag* ourselves, as nix-update can only fetch the latest *releases* from GitHub
