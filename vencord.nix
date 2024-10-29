@@ -16,7 +16,7 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
  # trace = import <nixpkgs> { }.trace;
-  src = lib.debug.traceVal (fetchFromGitHub {
+  src = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
     rev = "v${finalAttrs.version}";
