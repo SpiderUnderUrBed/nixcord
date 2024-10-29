@@ -363,7 +363,7 @@ in {
         buildWebExtension = false;
     };
     
-    applyPostPatch = pkg: lib.trace "Applying overrideAttrs to package: ${pkg.name}" (
+    applyPostPatch = pkg: lib.trace "Applying overrideAttrs to package: ${pkg.src}" (
       pkg.overrideAttrs (oldAttrs: {
         postPatch = ''
           echo "Current build directory (PWD): $(pwd)"
