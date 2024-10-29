@@ -363,13 +363,14 @@ in {
         buildWebExtension = false;
     };
     
-    applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
-      postPatch = ''
-         ${lib.trace "Current directory (PWD): ${builtins.getEnv "PWD"}"}
-        #mkdir -p src/userplugins
-        ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
-      '';
-    });
+    applyPostPatch = pkg: lib.trace "Applying overrideAttrs to package: ${pkg.name}" (
+      pkg.overrideAttrs (oldAttrs: {
+        postPatch = ''
+          echo "Current build directory (PWD): $(pwd)"
+          ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+        '';
+      })
+    );
 #     ${lib.trace "Current directory (PWD): ${builtins.getEnv "OLDPWD"}" ""}
 #        ls
     # nixpkgs is always really far behind
