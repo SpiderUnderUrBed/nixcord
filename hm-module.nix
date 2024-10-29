@@ -370,7 +370,7 @@ in {
           stdenv
           writeShellScript;
         buildWebExtension = false;
-      } // lib.traceVal "Location of vencord" 
+      } // lib.traceVal Vencord
     );
 
 
