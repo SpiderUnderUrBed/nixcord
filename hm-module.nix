@@ -372,8 +372,12 @@ in {
 #        ls
     # nixpkgs is always really far behind
     # so instead we maintain our own vencord package
+    
+  # Custom trace function to log outPath only
+  traceOutPath = drv: lib.debug.traceVal (drv.outPath);
 
-    vencord = lib.debug.traceVal (applyPostPatch vencordPkgs);
+  # Apply post-patch and trace only the outPath
+  vencord = traceOutPath (applyPostPatch vencordPkgs);
 
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
   in mkIf cfg.enable (mkMerge [
