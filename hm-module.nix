@@ -382,12 +382,6 @@ in
           # ln -s $out/src/userplugins src/userplugins
 
           ln -s ${userPluginsDirectory} src/userplugins
-          # for plugin in ${lib.concatStringsSep " " (lib.mapAttrs (name: path: ''"${path}/default.nix" '') (builtins.readDir userPluginsDirectory))}; do
-          #   if [ -f "$plugin" ]; then
-          #     echo "Building user plugin: $plugin"
-          #     nix-build "$plugin" -o "src/userplugins/${basename plugin}"
-          #   fi
-          # done
         '';
         # configurePhase = ''
         #     ${oldAttrs.configurePhase}
