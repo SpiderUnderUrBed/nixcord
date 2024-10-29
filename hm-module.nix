@@ -115,32 +115,51 @@ let
 
   #pluginOutputs = lib.attrValues pluginDerivations; 
 
-  userPluginsDirectory = pkgs.linkFarm "userPlugins" pluginDerivations;
+  buildDirs = pluginDerivations: lib.mapAttrsToList (_: pluginDir:
+    let
+      fullPath = "${pluginDir}";
 
-  buildDirs = dir: let
-    subDirs = builtins.attrNames (builtins.readDir dir);
-  in
-    # Iterate over subdirectories
-    builtins.map (subDir: let
-      fullPath = "${dir}/${subDir}";
-    in
-      if builtins.pathExists fullPath && builtins.isDir fullPath then
-        # Check for Nix files and build if they exist
-        if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-          pkgs.nix.build {
-            # You can set options here, like:
-            # buildInputs = [...];
-            # This assumes the default.nix or shell.nix are valid
-            src = fullPath;
-          }
-        else
-          null
+      # Check for a Nix expression and build if present
+      buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
+        pkgs.nix.build {
+          src = fullPath;
+        }
       else
-        null
-    ) subDirs;
+        pluginDir;
+    in
+      buildIfExists
+  ) pluginDerivations;
+
+  # Build the user plugins directory with linkFarm
+  userPluginsDirectory = pkgs.linkFarm "userPlugins" (buildDirs pluginDerivations);
+
+  # buildDirs = dir: let
+  #   subDirs = builtins.attrNames (builtins.readDir dir);
+  # in
+  #   # Iterate over subdirectories
+  #   builtins.map (subDir: let
+  #     fullPath = "${dir}/${subDir}";
+  #   in
+  #     if builtins.pathExists fullPath && builtins.isDir fullPath then
+  #       # Check for Nix files and build if they exist
+  #       if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
+  #         pkgs.nix.build {
+  #           # You can set options here, like:
+  #           # buildInputs = [...];
+  #           # This assumes the default.nix or shell.nix are valid
+  #           src = fullPath;
+  #         }
+  #       else
+  #         dir
+  #     else
+  #       null
+  #   ) subDirs;
 in   
 {
-  builds = buildDirs userPluginsDirectory;
+  #config = {
+ ##   builds = buildDirs userPluginsDirectory;
+  #};
+  #builds = buildDirs userPluginsDirectory;
   
   options.programs.nixcord = {
     enable = mkEnableOption "Enables Discord with Vencord";
@@ -368,6 +387,7 @@ in
     parseRules = cfg.parseRules;
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
+    #builds = buildDirs userPluginsDirectory;
 #srcOutPath
     
     applyPostPatch = pkg: lib.trace "Applying overrideAttrs to package: ${pkg.src}" (
