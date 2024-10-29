@@ -16,6 +16,23 @@ let
     attrsets
     lists
     ;
+    
+  vencordPkgs = pkgs.callPackage ./vencord.nix {
+    inherit (pkgs)
+      curl
+      esbuild
+      fetchFromGitHub
+      git
+      jq
+      lib
+      nix-update
+      nodejs
+      pnpm
+      stdenv
+      writeShellScript
+      ;
+    buildWebExtension = false;
+  };
 
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
@@ -99,26 +116,32 @@ let
   #pluginOutputs = lib.attrValues pluginDerivations; 
 
   userPluginsDirectory = pkgs.linkFarm "userPlugins" pluginDerivations;
-  #userPluginsDirectory = lib.traceSeqN 1 (builtins.toString pluginDerivations) pkgs.linkFarm "userPlugins" pluginDerivations;
-#userPluginsDirectory = let
-#  debugInfo = lib.concatMapStringsSep "\n" (name: 
-#    "${name}: ${builtins.toJSON (pluginDerivations.${name})}"
-#  ) (lib.attrNames pluginDerivations);
-#in lib.traceSeqN 1 debugInfo pkgs.linkFarm "userPlugins" pluginDerivations;
 
-  # "userPlugins" {
-   # inherit pluginOutputs;  
-   # name = "user-plugins";
-  #};
-  #  userPluginsDirectory = pkgs.runCommand "user-plugins-directory" { } ''
-  #  mkdir -p $out
-  #  for plugin in ${lib.concatStringsSep " " (lib.attrNames config.userPlugins)}; do
-  #    plugin_value=${config.userPlugins.${plugin}}
-  #    pluginMapper "${plugin_value}" > $out/${plugin}
-  #  done
-  #'';
-
-in {
+  buildDirs = dir: let
+    subDirs = builtins.attrNames (builtins.readDir dir);
+  in
+    # Iterate over subdirectories
+    builtins.map (subDir: let
+      fullPath = "${dir}/${subDir}";
+    in
+      if builtins.pathExists fullPath && builtins.isDir fullPath then
+        # Check for Nix files and build if they exist
+        if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
+          pkgs.nix.build {
+            # You can set options here, like:
+            # buildInputs = [...];
+            # This assumes the default.nix or shell.nix are valid
+            src = fullPath;
+          }
+        else
+          null
+      else
+        null
+    ) subDirs;
+in   
+{
+  builds = buildPlugins userPluginsDirectory;
+  
   options.programs.nixcord = {
     enable = mkEnableOption "Enables Discord with Vencord";
     discord = {
@@ -346,49 +369,25 @@ in {
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
 #srcOutPath
-      vencordPkgs = pkgs.callPackage ./vencord.nix {
-        inherit (pkgs)
-          curl
-          esbuild
-          fetchFromGitHub
-          git
-          jq
-          lib
-          nix-update
-          nodejs
-          pnpm
-          stdenv
-          writeShellScript
-          ;
-        buildWebExtension = false;
-    };
     
     applyPostPatch = pkg: lib.trace "Applying overrideAttrs to package: ${pkg.src}" (
       pkg.overrideAttrs (oldAttrs: {
         passthru = {
           userPlugins = userPluginsDirectory;
         };
-        # buildPhase = ''
-        # ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
-        # ${oldAttrs.buildPhase}
-        # '';
-        #     #ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
-          configurePhase = ''
-            runHook preConfigure
 
-            # Run esbuild's configuration commands here
-            # For example, you might set up symlinks or prepare any necessary files.
-            echo "Running esbuild configuration..."
-            # Insert specific esbuild setup commands here as necessary
-
-            runHook postConfigure
-          '';
         postPatch = '' 
           # mkdir -p $out/src
           # ln -s ${userPluginsDirectory} $out/src/userplugins
           # ln -s $out/src/userplugins src/userplugins
 
           ln -s ${userPluginsDirectory} src/userplugins
+          # for plugin in ${lib.concatStringsSep " " (lib.mapAttrs (name: path: ''"${path}/default.nix" '') (builtins.readDir userPluginsDirectory))}; do
+          #   if [ -f "$plugin" ]; then
+          #     echo "Building user plugin: $plugin"
+          #     nix-build "$plugin" -o "src/userplugins/${basename plugin}"
+          #   fi
+          # done
         '';
         # configurePhase = ''
         #     ${oldAttrs.configurePhase}
@@ -405,7 +404,23 @@ in {
 
   # Apply post-patch and trace only the outPath
   vencord = traceOutPath (applyPostPatch vencordPkgs);
+        # buildPhase = ''
+        # ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+        # ${oldAttrs.buildPhase}
+        # '';
+        #     #ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+          # configurePhase = ''
+          #   runHook preConfigure
 
+          #   for dir in ${userPluginsDirectory}; do
+          #     if [ -d "$dir" ]; then
+              
+          #     fi
+          #   done
+
+          #   runHook postConfigure
+          # '';
+          
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
   in mkIf cfg.enable (mkMerge [
     {
