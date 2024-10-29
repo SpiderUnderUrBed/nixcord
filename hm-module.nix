@@ -140,7 +140,7 @@ let
     ) subDirs;
 in   
 {
-  builds = buildPlugins userPluginsDirectory;
+  builds = buildDirs userPluginsDirectory;
   
   options.programs.nixcord = {
     enable = mkEnableOption "Enables Discord with Vencord";
