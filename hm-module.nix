@@ -368,11 +368,11 @@ in {
           nodejs
           pnpm
           stdenv
-          writeShellScript
-          ;
+          writeShellScript;
         buildWebExtension = false;
-      }
+      } // lib.traceVal "Location of vencord" 
     );
+
 
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
   in mkIf cfg.enable (mkMerge [
