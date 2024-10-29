@@ -66,15 +66,16 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   installPhase = ''
-    rm -rf $out/src
-    mv $out/dist $out 
-    rm -rf $out/dist
-
     runHook preInstall
 
     cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
 
     runHook postInstall
+
+    rm -rf $out/src
+    mv $out/dist $out 
+    rm -rf $out/dist
+
   '';
 
   # We need to fetch the latest *tag* ourselves, as nix-update can only fetch the latest *releases* from GitHub
