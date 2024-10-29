@@ -378,10 +378,10 @@ in {
           ln -s ${userPluginsDirectory} $out/src/userplugins
           ln -s $out/src/userplugins src/userplugins
         '';
-        configurePhase = ''
-            ${oldAttrs.configurePhase}
-            #npm install .
-        '';
+        # configurePhase = ''
+        #     ${oldAttrs.configurePhase}
+        #     #npm install .
+        # '';
       })
     );
 
