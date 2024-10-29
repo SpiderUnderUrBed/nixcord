@@ -76,7 +76,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   fixupPhase = ''
-      #rm -rf $out/src
+      rm -rf $out/src
       mv $out/dist/* $out
       rm -rf $out/dist
   '';
