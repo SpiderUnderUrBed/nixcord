@@ -372,16 +372,14 @@ in {
         # ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
         # ${oldAttrs.buildPhase}
         # '';
-        postPatch = ''
-         #mkdir -p $out/src/userplugins 
-         #ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+        #     #ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+        postPatch = '' 
+          mkdir -p $out/src
+          ln -s ${userPluginsDirectory} $out/src/userplugins
+          ln -s $out/src/userplugins src/userplugins
+        '';
+        configurePhase = ''
 
-         # all your errors are saying it cant with the whole directory thing
-        # so it hasnt been made before this phase happens
-        # so make it
-        mkdir -p $out/src
-        # also the name of the top-level directory made by linkFarm will already be safe
-        ln -s ${userPluginsDirectory} $out/src/userplugins
         '';
       })
     );
