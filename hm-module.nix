@@ -115,7 +115,7 @@ let
 
   #pluginOutputs = lib.attrValues pluginDerivations; 
 
-  buildDirs = pluginDerivations: lib.mapAttrsToList (_: pluginDir:
+  buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
     let
       fullPath = "${pluginDir}";
 
@@ -127,9 +127,9 @@ let
       else
         pluginDir;
     in
-      buildIfExists
+      # Return an attribute set with a `name` and `path` for linkFarm
+      { name = name; path = buildIfExists; }
   ) pluginDerivations;
-
   # Build the user plugins directory with linkFarm
   userPluginsDirectory = pkgs.linkFarm "userPlugins" (buildDirs pluginDerivations);
 
