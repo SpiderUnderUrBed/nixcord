@@ -15,13 +15,13 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
-
-  src = fetchFromGitHub {
+  trace = import <nixpkgs> { }.trace;
+  src = trace "Fetching source from GitHub" (fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
     rev = "v${finalAttrs.version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
-  };
+  });
 
   pnpmDeps = pnpm.fetchDeps {
     inherit (finalAttrs) pname src;
