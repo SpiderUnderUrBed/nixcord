@@ -121,9 +121,10 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        pkgs.nix.build {
-          src = fullPath;
-        }
+        import fullPath { inherit pkgs; }
+        # pkgs.nix.build {
+        #   src = fullPath;
+        # }
       else
         pluginDir;
     in
