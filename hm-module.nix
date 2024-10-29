@@ -366,7 +366,7 @@ in {
     applyPostPatch = pkg: lib.trace "Applying overrideAttrs to package: ${pkg.src}" (
       pkg.overrideAttrs (oldAttrs: {
         postPatch = ''
-          ln -s ${lib.escapeShellArg userPluginsDirectory} $out/userplugins
+          ln -s ${lib.escapeShellArg userPluginsDirectory} $out/src/userplugins
         '';
       })
     );
