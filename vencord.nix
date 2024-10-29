@@ -73,7 +73,7 @@ stdenv.mkDerivation (finalAttrs: {
     runHook postInstall
 
     rm -rf $out/src
-    mv $out/dist . 
+    mv $out/dist $src
     rm -rf $out/dist
 
   '';
