@@ -357,7 +357,7 @@ in {
     # so instead we maintain our own vencord package
 vencord = applyPostPatch (
   let
-    tracedVencord = lib.traceVal "Location of vencord" (
+    tracedVencord = pkgs.lib.traceVal "Location of vencord" (
       pkgs.callPackage ./vencord.nix {
         inherit (pkgs)
           curl
