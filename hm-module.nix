@@ -379,7 +379,8 @@ in {
           ln -s $out/src/userplugins src/userplugins
         '';
         configurePhase = ''
-            npm install .
+            ${oldAttrs.configurePhase}
+            #npm install .
         '';
       })
     );
