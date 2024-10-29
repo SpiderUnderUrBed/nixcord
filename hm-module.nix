@@ -345,18 +345,8 @@ in {
     parseRules = cfg.parseRules;
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
-
-    applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
-      postPatch = ''
-        ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
-      '';
-    });
-#     ${lib.trace "Current directory (PWD): ${builtins.getEnv "OLDPWD"}" ""}
-#        ls
-    # nixpkgs is always really far behind
-    # so instead we maintain our own vencord package
-    vencord = applyPostPatch (
-      pkgs.callPackage ./vencord.nix {
+#srcOutPath
+      vencordPkgs = pkgs.callPackage ./vencord.nix {
         inherit (pkgs)
           curl
           esbuild
@@ -371,8 +361,19 @@ in {
           writeShellScript
           ;
         buildWebExtension = false;
-      }
-    );
+    };
+    
+    applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
+      postPatch = ''
+        ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+      '';
+    });
+#     ${lib.trace "Current directory (PWD): ${builtins.getEnv "OLDPWD"}" ""}
+#        ls
+    # nixpkgs is always really far behind
+    # so instead we maintain our own vencord package
+
+    vencord = lib.debug.traceVal (applyPostPatch vencordPkgs);
 
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
   in mkIf cfg.enable (mkMerge [
