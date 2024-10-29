@@ -373,10 +373,22 @@ in {
         # ${oldAttrs.buildPhase}
         # '';
         #     #ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
+          configurePhase = ''
+            runHook preConfigure
+
+            # Run esbuild's configuration commands here
+            # For example, you might set up symlinks or prepare any necessary files.
+            echo "Running esbuild configuration..."
+            # Insert specific esbuild setup commands here as necessary
+
+            runHook postConfigure
+          '';
         postPatch = '' 
-          mkdir -p $out/src
-          ln -s ${userPluginsDirectory} $out/src/userplugins
-          ln -s $out/src/userplugins src/userplugins
+          # mkdir -p $out/src
+          # ln -s ${userPluginsDirectory} $out/src/userplugins
+          # ln -s $out/src/userplugins src/userplugins
+
+          ln -s ${userPluginsDirectory} src/userplugins
         '';
         # configurePhase = ''
         #     ${oldAttrs.configurePhase}
