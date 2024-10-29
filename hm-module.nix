@@ -365,6 +365,7 @@ in {
     
     applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
+        mkdir -p src/userplugins
         ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
       '';
     });
@@ -372,7 +373,7 @@ in {
 #        ls
     # nixpkgs is always really far behind
     # so instead we maintain our own vencord package
-    
+
   # Custom trace function to log outPath only
   traceOutPath = drv: lib.debug.traceVal (drv.outPath);
 
