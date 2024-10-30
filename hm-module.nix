@@ -118,18 +118,11 @@ let
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = builtins.toPath plugin; # Coerce `plugin` to a path
 
+        # Default unpack phase to copy files from src to the build directory
         unpackPhase = ''
-          echo "Plugin path is: ${plugin}"
-          echo "Skipping unpacking for directory source"
-        '';
-
-        installPhase = ''
-          mkdir -p "$out"
-          echo "Copying contents from ${plugin} to $out"
-          cp -r ${plugin}/* ./
+          $src/* $TEMPDIR/$sourceRoot && cd $TEMPDIR/$sourceRoot
         '';
       });
-
 
 
 
