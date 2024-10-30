@@ -118,8 +118,15 @@ let
         buildInputs = []; # Add any dependencies here if needed
       } ''
         mkdir -p $out
-        cp -r ${builtins.toPath plugin}/* $out
+        
+        # Check if the plugin directory exists and copy contents directly to $out
+        if [ -d "${builtins.toPath plugin}" ]; then
+          cp -rT ${builtins.toPath plugin} $out
+        else
+          echo "Warning: ${builtins.toPath plugin} does not exist or is empty."
+        fi
       '');
+
 
 
 
