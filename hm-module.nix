@@ -41,13 +41,14 @@ let
       };
 
       postPatch = '' 
-        ln -s $out ${patchedVencordSym}
+        #ln -s $out ${patchedVencordSym}
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
   patchedVencord = applyPostPatch vencordPkgs;
   patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
     mkdir -p $out
+    ln -s $out ${patchedVencord}
   '';
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
