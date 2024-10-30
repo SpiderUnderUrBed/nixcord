@@ -110,7 +110,7 @@ let
       coerceGithub plugin
     else if builtins.match regexGit plugin != null then
       coerceGit plugin
-    else if builtins.isDerivation plugin then
+    else if lib.attrsets.isDerivation plugin then
       plugin
     else
       # Wrap `plugin` in a basic derivation if it's not already a derivation
