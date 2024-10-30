@@ -102,7 +102,7 @@ let
   else
     throw "Failed to extract a valid filepath from the given value";
 #in coerceGit
-  rootPath = builtins.toPath vencordPkgs;
+  rootPath = builtins.toPath patchedVencord;
 
   # Mapper function that applies coercion based on the regex match
   pluginMapper = plugin: 
