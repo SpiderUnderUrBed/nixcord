@@ -124,11 +124,12 @@ let
         '';
 
         installPhase = ''
-          mkdir -p $out
-          echo "Copying contents from ${plugin} to output"
-          cp -r ${plugin}/* $out
+          mkdir -p "$out"
+          echo "Copying contents from ${src} to $out"
+          cp -r ${src}/* "$out/"
         '';
       });
+
 
 
 
