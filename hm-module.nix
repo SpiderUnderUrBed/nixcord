@@ -118,9 +118,10 @@ let
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = plugin; # Assuming `plugin` is a path
         unpackPhase = ''
-          # Directly set the source root to `src` as no unpacking is needed
-          mkdir -p $sourceRoot
-          cp -r $src/* $sourceRoot
+          mkdir -p $out
+          for file in *; do
+            cp -r "$file" "$out/"
+          done
         '';
       };
 
