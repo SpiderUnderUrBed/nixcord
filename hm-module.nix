@@ -114,15 +114,15 @@ let
       plugin
     else
       lib.traceValFn (d: d.outPath) (pkgs.stdenv.mkDerivation {
-        name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
-        src = builtins.toPath plugin; # Coerce `plugin` to a path
+      name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
+      src = builtins.toPath plugin; # Coerce `plugin` to a path
+      
+      # Simplified unpack phase to copy files from src to the build directory
+      unpackPhase = ''
+        cp -r $src/. ./
+      '';
+    });
 
-        # Default unpack phase to copy files from src to the build directory
-        unpackPhase = ''
-          cp -r $src/* $TEMPDIR/$sourceRoot
-          & cd $TEMPDIR/$sourceRoot
-        '';
-      });
       #plugin;
       # builtins.path { 
       #   name = "plugin";
