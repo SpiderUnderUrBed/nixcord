@@ -115,7 +115,7 @@ let
     else
       builtins.path { 
         name = "plugin";
-        path = builtins.toPath plugin 
+        path = builtins.toPath plugin;
       };
       # Wrap `plugin` in a basic derivation if it's not already a derivation
       # lib.traceValFn (d: d.outPath) (pkgs.runCommand "plugin-${builtins.hashString "sha256" (toString plugin)}" {
