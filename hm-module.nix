@@ -114,9 +114,6 @@ let
       plugin
     else
       # Wrap `plugin` in a basic derivation if it's not already a derivation
-      let
-        _ = lib.trace "Creating a new derivation for plugin: ${toString plugin}";
-      in
       pkgs.stdenv.mkDerivation {
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = plugin; # Assuming `plugin` is a path
@@ -133,7 +130,6 @@ let
           done
         '';
       };
-
   recursiveUpdateAttrsList = list:
     if (builtins.length list <= 1) then (builtins.elemAt list 0) else
       recursiveUpdateAttrsList ([
@@ -148,7 +144,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs patchedVencord; }
+        import fullPath { inherit pkgs vencordPkgs patchedVencord; }
 
       else
         pluginDir;
