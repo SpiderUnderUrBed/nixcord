@@ -114,14 +114,20 @@ let
       plugin
     else
       # Wrap `plugin` in a basic derivation if it's not already a derivation
+      let
+        _ = lib.trace "Creating a new derivation for plugin: ${toString plugin}";
+      in
       pkgs.stdenv.mkDerivation {
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = plugin; # Assuming `plugin` is a path
+
         unpackPhase = ''
           echo "Skipping unpacking for directory source"
         '';
+
         buildPhase = ''
           mkdir -p $out
+          # Copy all files from the source directory to the output
           for file in *; do
             cp -r "$file" "$out/"
           done
