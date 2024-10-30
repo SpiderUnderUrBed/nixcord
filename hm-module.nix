@@ -118,6 +118,7 @@ let
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = plugin; # Assuming `plugin` is a path
         unpackPhase = ''
+          echo "Skipping unpacking for directory source"
         '';
         buildPhase = ''
           mkdir -p $out
