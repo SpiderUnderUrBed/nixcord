@@ -41,13 +41,13 @@ let
       };
 
       postPatch = '' 
+        ln -s $out ${patchedVencordSym}
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
   patchedVencord = applyPostPatch vencordPkgs;
   patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
     mkdir -p $out
-    ln -s $out ${patchedVencord}
   '';
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
@@ -120,39 +120,6 @@ let
         name = "plugin";
         path = builtins.toPath plugin;
       };
-
-    #  lib.traceValFn (d: d.outPath) (pkgs.stdenv.mkDerivation {
-    #  name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
-    #  src = builtins.toPath plugin; # Coerce `plugin` to a path
-      
-      # Simplified unpack phase to copy files from src to the build directory
-    #  unpackPhase = ''
-    #    cp -r $src/* ./
-    #  '';
-    #});
-
-      #plugin;
-      # builtins.path { 
-      #   name = "plugin";
-      #   path = builtins.toPath plugin;
-      # };
-      # Wrap `plugin` in a basic derivation if it's not already a derivation
-      # lib.traceValFn (d: d.outPath) (pkgs.runCommand "plugin-${builtins.hashString "sha256" (toString plugin)}" {
-      #   buildInputs = []; # Add any dependencies here if needed
-      # } ''
-      #   mkdir -p $out
-        
-      #   # Check if the plugin directory exists and copy contents directly to $out
-      #   if [ -d "${builtins.toPath plugin}" ]; then
-      #     cp -rT ${builtins.toPath plugin} $out
-      #   else
-      #     echo "Warning: ${builtins.toPath plugin} does not exist or is empty."
-      #   fi
-      # '');
-
-
-
-
 
   recursiveUpdateAttrsList = list:
     if (builtins.length list <= 1) then (builtins.elemAt list 0) else
