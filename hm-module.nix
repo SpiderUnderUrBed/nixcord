@@ -125,7 +125,7 @@ let
 
         installPhase = ''
           mkdir -p $out
-          echo "Copying contents from ${src} to output"
+          echo "Copying contents from ${plugin} to output"
           cp -r ${plugin}/* $out
         '';
       });
