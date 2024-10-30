@@ -105,15 +105,16 @@ let
 
 
   # Mapper function that applies coercion based on the regex match
-  pluginMapper = plugin: 
-    if builtins.match regexGithub plugin != null then
-      coerceGithub plugin
-    else if builtins.match regexGit plugin != null then
-      coerceGit plugin
-    else if lib.attrsets.isDerivation plugin then
-      plugin
-    else
-      builtins.toPath plugin;
+  pluginMapper = "/home/spiderunderurbed/projects/vesktop/hideUsers/target/debug/userplugins/"
+  # plugin: 
+  #   if builtins.match regexGithub plugin != null then
+  #     coerceGithub plugin
+  #   else if builtins.match regexGit plugin != null then
+  #     coerceGit plugin
+  #   else if lib.attrsets.isDerivation plugin then
+  #     plugin
+  #   else
+  #     builtins.toPath plugin;
       # Wrap `plugin` in a basic derivation if it's not already a derivation
       # lib.traceValFn (d: d.outPath) (pkgs.runCommand "plugin-${builtins.hashString "sha256" (toString plugin)}" {
       #   buildInputs = []; # Add any dependencies here if needed
