@@ -113,10 +113,20 @@ let
     else if lib.attrsets.isDerivation plugin then
       plugin
     else
-      builtins.path { 
-        name = "plugin";
-        path = builtins.toPath plugin;
-      };
+      lib.traceValFn (d: d.outPath) (pkgs.stdenv.mkDerivation {
+        name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
+        src = builtins.toPath plugin; # Coerce `plugin` to a path
+
+        # Default unpack phase to copy files from src to the build directory
+        unpackPhase = ''
+          $src/* $TEMPDIR/$sourceRoot && cd $TEMPDIR/$sourceRoot
+        '';
+      });
+      #plugin;
+      # builtins.path { 
+      #   name = "plugin";
+      #   path = builtins.toPath plugin;
+      # };
       # Wrap `plugin` in a basic derivation if it's not already a derivation
       # lib.traceValFn (d: d.outPath) (pkgs.runCommand "plugin-${builtins.hashString "sha256" (toString plugin)}" {
       #   buildInputs = []; # Add any dependencies here if needed
