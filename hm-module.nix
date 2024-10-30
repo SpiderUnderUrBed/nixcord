@@ -120,7 +120,7 @@ let
         unpackPhase = ''
           # Directly set the source root to `src` as no unpacking is needed
           mkdir -p $sourceRoot
-          cp -r ${src}/* $sourceRoot
+          cp -r $src/* $sourceRoot
         '';
       };
 
