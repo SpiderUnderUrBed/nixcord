@@ -114,7 +114,7 @@ let
       plugin
     else
       # Wrap `plugin` in a basic derivation if it's not already a derivation
-      pkgs.stdenv.mkDerivation {
+      lib.traceValFn (d: d.drvPath) (pkgs.stdenv.mkDerivation {
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = plugin; # Assuming `plugin` is a path
 
@@ -129,7 +129,7 @@ let
             cp -r "$file" "$out/"
           done
         '';
-      };
+      });
   recursiveUpdateAttrsList = list:
     if (builtins.length list <= 1) then (builtins.elemAt list 0) else
       recursiveUpdateAttrsList ([
