@@ -45,13 +45,10 @@ let
       '';
     });
   patchedVencord = applyPostPatch vencordPkgs;
-  patchedVencordSym = pkgs.stdenv.mkDerivation {
-    pname = "vencord-sym";
-    version = "0.0.0";
-    postPatch = ''
-      ln -s ${patchedVencord} $out
-    '';
-  };
+  patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
+    mkdir -p $out
+    ln -s ${patchedVencord} $out/vencord-link
+  '';
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
   # Define regular expressions for GitHub and Git URLs
