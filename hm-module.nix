@@ -46,6 +46,8 @@ let
     });
   patchedVencord = applyPostPatch vencordPkgs;
   patchedVencordSym = pkgs.stdenv.mkDerivation {
+    pname = "vencord-sym";
+    version = "0.0.0";
     postPatch = ''
       ln -s ${patchedVencord} $out
     '';
