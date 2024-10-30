@@ -75,11 +75,11 @@ stdenv.mkDerivation (finalAttrs: {
 
   '';
 
-  fixupPhase = ''
-      rm -rf $out/src
-      mv $out/dist/* $out
-      rm -rf $out/dist
-  '';
+  # fixupPhase = ''
+  #     rm -rf $out/src
+  #     mv $out/dist/* $out
+  #     rm -rf $out/dist
+  # '';
 
   # We need to fetch the latest *tag* ourselves, as nix-update can only fetch the latest *releases* from GitHub
   # Vencord had a single "devbuild" release that we do not care about
