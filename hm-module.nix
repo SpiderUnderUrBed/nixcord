@@ -102,7 +102,7 @@ let
   else
     throw "Failed to extract a valid filepath from the given value";
 #in coerceGit
-  rootPath = "${patchedVencord.outPath}";
+ # rootPath = "${patchedVencord.outPath}";
 
   # Mapper function that applies coercion based on the regex match
   pluginMapper = plugin: 
@@ -165,7 +165,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs rootPath; }
+        import fullPath { inherit pkgs userPluginsDirectory; }
 
       else
         pluginDir;
