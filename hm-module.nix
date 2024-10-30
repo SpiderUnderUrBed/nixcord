@@ -119,7 +119,8 @@ let
 
         # Default unpack phase to copy files from src to the build directory
         unpackPhase = ''
-          $src/* $TEMPDIR/$sourceRoot && cd $TEMPDIR/$sourceRoot
+          cp -r $src/* $TEMPDIR/$sourceRoot
+          & cd $TEMPDIR/$sourceRoot
         '';
       });
       #plugin;
