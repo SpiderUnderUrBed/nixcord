@@ -117,10 +117,10 @@ let
       pkgs.stdenv.mkDerivation {
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = plugin; # Assuming `plugin` is a path
-        buildPhase = "echo 'Building plugin...'";
-        installPhase = ''
-          mkdir -p $out
-          cp -r $src/* $out/
+        unpackPhase = ''
+          # Directly set the source root to `src` as no unpacking is needed
+          mkdir -p $sourceRoot
+          cp -r ${src}/* $sourceRoot
         '';
       };
 
