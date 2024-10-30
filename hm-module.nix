@@ -102,7 +102,7 @@ let
   else
     throw "Failed to extract a valid filepath from the given value";
 #in coerceGit
-
+  rootPath = builtins.toPath vencordPkgs;
 
   # Mapper function that applies coercion based on the regex match
   pluginMapper = plugin: 
@@ -165,7 +165,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs vencordPkgs patchedVencord; }
+        import fullPath { inherit pkgs rootPath; }
 
       else
         pluginDir;
