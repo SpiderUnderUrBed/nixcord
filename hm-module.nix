@@ -117,6 +117,8 @@ let
       pkgs.stdenv.mkDerivation {
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = plugin; # Assuming `plugin` is a path
+        unpackPhase = ''
+        '';
         buildPhase = ''
           mkdir -p $out
           for file in *; do
