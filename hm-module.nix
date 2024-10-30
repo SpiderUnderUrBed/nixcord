@@ -33,6 +33,18 @@ let
       ;
     buildWebExtension = false;
   };
+    
+  applyPostPatch = pkg: 
+    pkg.overrideAttrs (oldAttrs: {
+      passthru = {
+        userPlugins = userPluginsDirectory;
+      };
+
+      postPatch = '' 
+        ln -s ${userPluginsDirectory} src/userplugins
+      '';
+    });
+  patchedVencord = applyPostPatch vencordPkgs;
 
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
@@ -85,10 +97,7 @@ let
       in {
         url = filepath;
         ref = "main";
-        # Use revCondition directly without trying to inherit rev
-        # This will prevent the missing rev error
-        # If revCondition is empty, it won't add the rev key
-      } // revCondition  # Combine the base attributes with revCondition
+      } // revCondition  
     )
   else
     throw "Failed to extract a valid filepath from the given value";
@@ -113,18 +122,14 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
 
-  #pluginOutputs = lib.attrValues pluginDerivations; 
-
   buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
     let
       fullPath = "${pluginDir}";
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs; }
-        # pkgs.nix.build {
-        #   src = fullPath;
-        # }
+        import fullPath { inherit pkgs patchedVencord; }
+
       else
         pluginDir;
     in
@@ -134,34 +139,9 @@ let
   # Build the user plugins directory with linkFarm
   userPluginsDirectory = pkgs.linkFarm "userPlugins" (buildDirs pluginDerivations);
 
-  # buildDirs = dir: let
-  #   subDirs = builtins.attrNames (builtins.readDir dir);
-  # in
-  #   # Iterate over subdirectories
-  #   builtins.map (subDir: let
-  #     fullPath = "${dir}/${subDir}";
-  #   in
-  #     if builtins.pathExists fullPath && builtins.isDir fullPath then
-  #       # Check for Nix files and build if they exist
-  #       if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-  #         pkgs.nix.build {
-  #           # You can set options here, like:
-  #           # buildInputs = [...];
-  #           # This assumes the default.nix or shell.nix are valid
-  #           src = fullPath;
-  #         }
-  #       else
-  #         dir
-  #     else
-  #       null
-  #   ) subDirs;
 in   
 {
-  #config = {
- ##   builds = buildDirs userPluginsDirectory;
-  #};
-  #builds = buildDirs userPluginsDirectory;
-  
+  #inherit patchedVencord;
   options.programs.nixcord = {
     enable = mkEnableOption "Enables Discord with Vencord";
     discord = {
@@ -388,54 +368,7 @@ in
     parseRules = cfg.parseRules;
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
-    #builds = buildDirs userPluginsDirectory;
-#srcOutPath
-    
-    applyPostPatch = pkg: lib.trace "Applying overrideAttrs to package: ${pkg.src}" (
-      pkg.overrideAttrs (oldAttrs: {
-        passthru = {
-          userPlugins = userPluginsDirectory;
-        };
-
-        postPatch = '' 
-          # mkdir -p $out/src
-          # ln -s ${userPluginsDirectory} $out/src/userplugins
-          # ln -s $out/src/userplugins src/userplugins
-
-          ln -s ${userPluginsDirectory} src/userplugins
-        '';
-        # configurePhase = ''
-        #     ${oldAttrs.configurePhase}
-        #     #npm install .
-        # '';
-      })
-    );
-
-    # nixpkgs is always really far behind
-    # so instead we maintain our own vencord package
-
-  # Custom trace function to log outPath only
-  traceOutPath = drv: lib.debug.traceVal (drv.outPath);
-
-  # Apply post-patch and trace only the outPath
-  vencord = traceOutPath (applyPostPatch vencordPkgs);
-        # buildPhase = ''
-        # ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
-        # ${oldAttrs.buildPhase}
-        # '';
-        #     #ln -s ${lib.escapeShellArg userPluginsDirectory} src/userplugins
-          # configurePhase = ''
-          #   runHook preConfigure
-
-          #   for dir in ${userPluginsDirectory}; do
-          #     if [ -d "$dir" ]; then
-              
-          #     fi
-          #   done
-
-          #   runHook postConfigure
-          # '';
-          
+    vencord = patchedVencord;
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
   in mkIf cfg.enable (mkMerge [
     {
