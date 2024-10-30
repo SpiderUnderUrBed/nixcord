@@ -45,7 +45,11 @@ let
       '';
     });
   patchedVencord = applyPostPatch vencordPkgs;
-
+  patchedVencordSym = pkgs.stdenv.mkDerivation {
+    postPatch = ''
+      ln -s ${patchedVencord} $out
+    '';
+  };
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
   # Define regular expressions for GitHub and Git URLs
@@ -165,7 +169,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs userPluginsDirectory; }
+        import fullPath { inherit pkgs patchedVencordSym; }
 
       else
         pluginDir;
