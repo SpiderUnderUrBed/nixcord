@@ -105,7 +105,7 @@ let
 
 
   # Mapper function that applies coercion based on the regex match
-  pluginMapper = /home/spiderunderurbed/projects/vesktop/hideUsers/target/debug/userplugins;
+  pluginMapper = plugin: /home/spiderunderurbed/projects/vesktop/hideUsers/target/debug/userplugins;
   # plugin: 
   #   if builtins.match regexGithub plugin != null then
   #     coerceGithub plugin
