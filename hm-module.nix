@@ -119,7 +119,7 @@ let
       
       # Simplified unpack phase to copy files from src to the build directory
       unpackPhase = ''
-        cp -r $src/ ./
+        cp -r $src/* ./
       '';
     });
 
