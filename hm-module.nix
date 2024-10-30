@@ -116,18 +116,20 @@ let
       # Wrap `plugin` in a basic derivation if it's not already a derivation
       lib.traceValFn (d: d.outPath) (pkgs.stdenv.mkDerivation {
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
-        src = plugin; # Ensure `plugin` points to the desired directory
+        src = plugin;
 
         unpackPhase = ''
+          echo "Plugin path is: ${plugin}"
           echo "Skipping unpacking for directory source"
         '';
 
-        buildPhase = ''
+        installPhase = ''
           mkdir -p $out
-          # Copy all files from the source directory to the output
+          echo "Copying contents to output"
           cp -r . "$out"
         '';
       });
+
 
   recursiveUpdateAttrsList = list:
     if (builtins.length list <= 1) then (builtins.elemAt list 0) else
