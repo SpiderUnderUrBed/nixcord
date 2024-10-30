@@ -110,9 +110,19 @@ let
       coerceGithub plugin
     else if builtins.match regexGit plugin != null then
       coerceGit plugin
+    else if builtins.isDerivation plugin then
+      plugin
     else
-      plugin;  # Leave it as-is if it's already a package or path
-
+      # Wrap `plugin` in a basic derivation if it's not already a derivation
+      pkgs.stdenv.mkDerivation {
+        name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
+        src = plugin; # Assuming `plugin` is a path
+        buildPhase = "echo 'Building plugin...'";
+        installPhase = ''
+          mkdir -p $out
+          cp -r $src/* $out/
+        '';
+      };
 
   recursiveUpdateAttrsList = list:
     if (builtins.length list <= 1) then (builtins.elemAt list 0) else
