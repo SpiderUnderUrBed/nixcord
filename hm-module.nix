@@ -41,7 +41,6 @@ let
       };
 
       postPatch = '' 
-        #ln -s $out ${patchedVencordSym}
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
