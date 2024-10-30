@@ -114,13 +114,14 @@ let
       plugin
     else
       # Wrap `plugin` in a basic derivation if it's not already a derivation
-      lib.traceValFn (d: d.outPath) (pkgs.stdenv.mkDerivation {
+    lib.traceValFn (d: d.outPath) (pkgs.stdenv.mkDerivation {
         name = "plugin-${builtins.hashString "sha256" (toString plugin)}";
         src = builtins.toPath plugin; # Coerce `plugin` to a path
 
         # Default unpack phase to copy files from src to the build directory
-        unpackPhase = ''
-          $src/* $TEMPDIR/$sourceRoot && cd $TEMPDIR/$sourceRoot
+        installPhase = ''
+          mkdir -p $out
+          cp -r $src/* $out
         '';
       });
 
