@@ -113,19 +113,20 @@ let
     else if lib.attrsets.isDerivation plugin then
       plugin
     else
+      plugin
       # Wrap `plugin` in a basic derivation if it's not already a derivation
-      lib.traceValFn (d: d.outPath) (pkgs.runCommand "plugin-${builtins.hashString "sha256" (toString plugin)}" {
-        buildInputs = []; # Add any dependencies here if needed
-      } ''
-        mkdir -p $out
+      # lib.traceValFn (d: d.outPath) (pkgs.runCommand "plugin-${builtins.hashString "sha256" (toString plugin)}" {
+      #   buildInputs = []; # Add any dependencies here if needed
+      # } ''
+      #   mkdir -p $out
         
-        # Check if the plugin directory exists and copy contents directly to $out
-        if [ -d "${builtins.toPath plugin}" ]; then
-          cp -rT ${builtins.toPath plugin} $out
-        else
-          echo "Warning: ${builtins.toPath plugin} does not exist or is empty."
-        fi
-      '');
+      #   # Check if the plugin directory exists and copy contents directly to $out
+      #   if [ -d "${builtins.toPath plugin}" ]; then
+      #     cp -rT ${builtins.toPath plugin} $out
+      #   else
+      #     echo "Warning: ${builtins.toPath plugin} does not exist or is empty."
+      #   fi
+      # '');
 
 
 
