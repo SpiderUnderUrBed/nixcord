@@ -41,7 +41,7 @@ let
       };
 
       postPatch = '' 
-        ln -s $out ${patchedVencordSym}
+        ln -s src/ ${patchedVencordSym}
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
@@ -135,7 +135,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs patchedVencordSym; }
+        import fullPath { inherit pkgs; }
 
       else
         pluginDir;
@@ -144,6 +144,7 @@ let
       { name = name; path = buildIfExists; }
   ) pluginDerivations;
   # Build the user plugins directory with linkFarm
+  #userPluginsDirectory = pkgs.linkFarm "userPlugins" (lib.mapAttrsToList (name: pluginDir: { name = name; path = pluginDir; }) pluginDerivations);
   userPluginsDirectory = pkgs.linkFarm "userPlugins" (buildDirs pluginDerivations);
 
 in   
