@@ -36,19 +36,24 @@ let
     
   applyPostPatch = pkg: 
     pkg.overrideAttrs (oldAttrs: {
-      passthru = {
-        userPlugins = userPluginsDirectory;
-      };
+      #passthru = {
+      #  userPlugins = userPluginsDirectory;
+      #};
 
       postPatch = '' 
-        ln -s src/ ${patchedVencordSym}
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
   patchedVencord = applyPostPatch vencordPkgs;
-  patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
-    mkdir -p $out
-  '';
+  patchedVencordSym = pkgs.symlinkJoin {
+    name = "test";
+    paths = [
+      applyPostPatch
+    ];
+  };
+  # patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
+  #   mkdir -p $out
+  # '';
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
   # Define regular expressions for GitHub and Git URLs
