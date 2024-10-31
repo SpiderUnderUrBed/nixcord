@@ -48,7 +48,7 @@ let
   patchedVencordSym = pkgs.symlinkJoin {
     name = "test";
     paths = [
-      (applyPostPatch)
+      (applyPostPatch.outPath)
     ];
   };
   # patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
