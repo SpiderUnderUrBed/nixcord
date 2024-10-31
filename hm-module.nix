@@ -135,7 +135,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs patchedVencordSym; }
+        import fullPath { inherit pkgs; }
 
       else
         pluginDir;
