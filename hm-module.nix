@@ -42,6 +42,8 @@ let
       outputs = ["out" "api"];
 
       postPatch = '' 
+        echo "api output path: $api"
+        mkdir -p $api
         mv src/api $api
         ln -s $api src/api
         ln -s ${userPluginsDirectory} src/userplugins
