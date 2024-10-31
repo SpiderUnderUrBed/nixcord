@@ -43,7 +43,7 @@ let
 
       postPatch = '' 
         mv src/api $api
-        ln $api src/api
+        ln -s $api src/api
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
