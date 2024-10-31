@@ -39,6 +39,7 @@ let
       #passthru = {
       #  userPlugins = userPluginsDirectory;
       #};
+      outputs = ["out" "api"];
 
       postPatch = '' 
         ln -s ${userPluginsDirectory} src/userplugins
@@ -135,7 +136,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs vencordPkgs; }
+        import fullPath { inherit pkgs; }
 
       else
         pluginDir;
