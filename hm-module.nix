@@ -44,7 +44,7 @@ let
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
-  patchedVencord = applyPostPatch vencordPkgs;
+  patchedVencord = lib.traceValFn (d: d.outPath) (applyPostPatch vencordPkgs);
   #patchedVencordSym = 
   # patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
   #   mkdir -p $out
@@ -378,12 +378,12 @@ in
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
     vencord = patchedVencord;
-    vencordSym = pkgs.symlinkJoin {
-    name = "test";
-      paths = [
-        (applyPostPatch)
-      ];
-    };
+    # vencordSym = pkgs.symlinkJoin {
+    #   name = "vencord-symlink";
+    #   paths = [
+    #     (applyPostPatch)
+    #   ];
+    # };
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
   in mkIf cfg.enable (mkMerge [
     {
