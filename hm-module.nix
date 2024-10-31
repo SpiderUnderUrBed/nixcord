@@ -39,12 +39,32 @@ let
       #passthru = {
       #  userPlugins = userPluginsDirectory;
       #};
-      outputs = ["out" "src/api"];
+      outputs = ["out" "api"];
 
       postPatch = '' 
+        mv src/api $api
+        ln $api src/api
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
+  # vencordApi = stdenv.mkDerivation rec {
+  #   pname = "vencordApi";
+  #   version = "1.0.0";
+
+  #   src = example-main.src;
+
+  #   installPhase = ''
+  #     mkdir -p $out/api
+  #     # Copy or build API-specific files
+  #     cp -r $src/api $out/api
+  #   '';
+
+  #   meta = {
+  #     description = "API for example package";
+  #     license = stdenv.lib.licenses.mit;
+  #   };
+  # };
+
   patchedVencord = lib.traceValFn (d: d.outPath) (applyPostPatch vencordPkgs);
   #patchedVencordSym = 
   # patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
