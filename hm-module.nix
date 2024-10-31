@@ -39,7 +39,7 @@ let
       #passthru = {
       #  userPlugins = userPluginsDirectory;
       #};
-      outputs = ["out" "api"];
+      outputs = ["out" "src/api"];
 
       postPatch = '' 
         ln -s ${userPluginsDirectory} src/userplugins
