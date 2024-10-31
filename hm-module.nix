@@ -45,12 +45,7 @@ let
       '';
     });
   patchedVencord = applyPostPatch vencordPkgs;
-  patchedVencordSym = pkgs.symlinkJoin {
-    name = "test";
-    paths = [
-      (applyPostPatch.outPath)
-    ];
-  };
+  #patchedVencordSym = 
   # patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
   #   mkdir -p $out
   # '';
@@ -154,6 +149,7 @@ let
 
 in   
 {
+  
   #inherit patchedVencord;
   options.programs.nixcord = {
     enable = mkEnableOption "Enables Discord with Vencord";
@@ -382,6 +378,12 @@ in
     inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
       mkVencordCfg;
     vencord = patchedVencord;
+    vencordSym = pkgs.symlinkJoin {
+    name = "test";
+      paths = [
+        (applyPostPatch)
+      ];
+    };
     isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
   in mkIf cfg.enable (mkMerge [
     {
