@@ -17,7 +17,7 @@ let
     lists
     ;
     
-  vencordPkgs = pkgs.callPackage ./vencord.nix {
+  vencordPkgs = lib.traceValFn (d: d.outPath) (pkgs.callPackage ./vencord.nix {
     inherit (pkgs)
       curl
       esbuild
@@ -32,7 +32,7 @@ let
       writeShellScript
       ;
     buildWebExtension = false;
-  };
+  });
     
   applyPostPatch = pkg: 
     pkg.overrideAttrs (oldAttrs: {
