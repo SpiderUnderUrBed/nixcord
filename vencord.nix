@@ -61,6 +61,9 @@ stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
+    mkdir -p $api
+    mv src/api/* $api/
+    ln -sf $api $out/src/api
     pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
       -- --standalone --disable-updater
 
@@ -70,9 +73,6 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $api
-    mv src/api/* $api/
-    ln -sf $api $out/src/api
     cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
 
     runHook postInstall
