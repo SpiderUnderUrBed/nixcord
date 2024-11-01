@@ -52,23 +52,12 @@ let
     
   applyPostPatch = pkg:
     pkg.overrideAttrs (oldAttrs: {
-      outputs = ["out" "api"];
-
-      installPhase = ''
-        runHook preInstall
-        # ${oldAttrs.installPhase}
-        cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
-        mkdir -p $api
-        mv src/api/* $api/
-        ln -sf $api $out/api
-        runHook postInstall
-      '';
 
       postPatch = ''
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
-
+  apiPath = vencordPkgs.api;
 
   patchedVencord = lib.traceValFn (d: d.outPath) (applyPostPatch vencordPkgs);
 
@@ -158,7 +147,7 @@ let
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs; }
+        import fullPath { inherit pkgs apiPath; }
 
       else
         pluginDir;

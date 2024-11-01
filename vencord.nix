@@ -15,6 +15,8 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
+  outputs = ["out" "api"];
+
  # trace = import <nixpkgs> { }.trace;
   src = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
     owner = "Vendicated";
@@ -68,6 +70,9 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
+    mkdir -p $api
+    mv src/api/* $api/
+    ln -sf $api $out/api
     cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
 
     runHook postInstall
