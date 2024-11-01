@@ -54,15 +54,17 @@ let
     pkg.overrideAttrs (oldAttrs: {
       outputs = ["out" "api"];
 
-      postPatch = ''
-        # Move the API files to the "api" output
+      installPhase = ''
+        runHook preInstall
+        # ${oldAttrs.installPhase}
+        cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
         mkdir -p $api
         mv src/api/* $api/
+        ln -sf $api $out/api
+        runHook postInstall
+      '';
 
-        # Create a symlink back to the "api" output in the main "out" output
-        ln -sf $api src/api
-
-        # Symlink the user plugins directory to the source directory
+      postPatch = ''
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
