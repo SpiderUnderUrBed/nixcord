@@ -15,6 +15,8 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
+  
+  outputs = ["out" "api"];
 
  # trace = import <nixpkgs> { }.trace;
   src = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
@@ -58,6 +60,9 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   buildPhase = ''
+    mkdir -p $api
+    ln -sf src/api $api 
+
     runHook preBuild
 
     pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
