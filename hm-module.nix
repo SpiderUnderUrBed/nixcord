@@ -150,14 +150,17 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
   
-  apiPath = applyPostPatch.api;
+  #apiPath = applyPostPatch.api;
   buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
     let
       fullPath = "${pluginDir}";
 
       # Check for a Nix expression and build if present
       buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
-        import fullPath { inherit pkgs apiPath; }
+        import fullPath { 
+        inherit pkgs; 
+        #apiPath; 
+        }
 
       else
         pluginDir;
