@@ -57,7 +57,6 @@ let
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
-  apiPath = vencordPkgs.api;
 
   patchedVencord = lib.traceValFn (d: d.outPath) (applyPostPatch vencordPkgs);
 
@@ -141,6 +140,7 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
 
+  apiPath = (vencordPkgs.api or "test");
   buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
     let
       fullPath = "${pluginDir}";
