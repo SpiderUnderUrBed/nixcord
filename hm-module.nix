@@ -50,7 +50,7 @@ let
     buildWebExtension = false;
   });
     
-  applyPostPatch = lib.traceValFn (d: "apiPath: ${toString d.api}") (pkg:
+  applyPostPatch = pkg:
     pkg.overrideAttrs (oldAttrs: {
      outputs = ["out" "api"];
 
@@ -67,7 +67,7 @@ let
 
         ln -s ${userPluginsDirectory} src/userplugins
       '';
-    }));
+    });
 
   patchedVencord = lib.traceValFn (d: d.outPath) (applyPostPatch vencordPkgs);
 
@@ -151,7 +151,7 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
   
- apiPath = lib.debug.traceVal "apiPath:" applyPostPatch.api;
+ # apiPath = lib.debug.traceVal "apiPath:" applyPostPatch.api;
   buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
     let
       fullPath = "${pluginDir}";
