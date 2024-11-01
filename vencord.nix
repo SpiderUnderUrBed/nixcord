@@ -72,7 +72,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     mkdir -p $api
     mv src/api/* $api/
-    ln -sf $api $out/api
+    ln -sf $api $out/src/api
     cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
 
     runHook postInstall
