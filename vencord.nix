@@ -61,7 +61,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildPhase = ''
     mkdir -p $api
-    ln -sf src/api $api 
+    mv -r src/api/* $api
+    ln -sf $api src/api
+    #ln -sf src/api $api 
 
     #runHook preBuild
 
