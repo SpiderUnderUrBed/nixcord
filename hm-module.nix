@@ -138,7 +138,7 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
   
-  apiPath = vencordPkgs.outPath;
+  apiPath = vencordPkgs.src;
   buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
     let
       fullPath = "${pluginDir}";
