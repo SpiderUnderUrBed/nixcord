@@ -50,8 +50,7 @@ let
     buildWebExtension = false;
   });
     
-  applyPostPatch = pkg:
-    pkg.overrideAttrs (oldAttrs: {
+  applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
      outputs = ["out" "api"];
 
       # postUnpack = ''
