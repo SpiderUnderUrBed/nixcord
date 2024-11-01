@@ -6,7 +6,23 @@
 }:
 let
   cfg = config.programs.nixcord;
+  # vencordApi = stdenv.mkDerivation rec {
+  #   pname = "vencordApi";
+  #   version = "1.0.0";
 
+  #   src = example-main.src;
+
+  #   installPhase = ''
+  #     mkdir -p $out/api
+  #     # Copy or build API-specific files
+  #     cp -r $src/api $out/api
+  #   '';
+
+  #   meta = {
+  #     description = "API for example package";
+  #     license = stdenv.lib.licenses.mit;
+  #   };
+  # };
   inherit (lib)
     mkEnableOption
     mkOption
@@ -34,44 +50,26 @@ let
     buildWebExtension = false;
   });
     
-  applyPostPatch = pkg: 
+  applyPostPatch = pkg:
     pkg.overrideAttrs (oldAttrs: {
-      #passthru = {
-      #  userPlugins = userPluginsDirectory;
-      #};
       outputs = ["out" "api"];
 
-      postPatch = '' 
-        echo "api output path: $api"
+      postPatch = ''
+        # Move the API files to the "api" output
         mkdir -p $api
-        mv src/api $api
-        ln -s $api src/api
+        mv src/api/* $api/
+
+        # Create a symlink back to the "api" output in the main "out" output
+        ln -sf $api src/api
+
+        # Symlink the user plugins directory to the source directory
         ln -s ${userPluginsDirectory} src/userplugins
       '';
     });
-  # vencordApi = stdenv.mkDerivation rec {
-  #   pname = "vencordApi";
-  #   version = "1.0.0";
 
-  #   src = example-main.src;
-
-  #   installPhase = ''
-  #     mkdir -p $out/api
-  #     # Copy or build API-specific files
-  #     cp -r $src/api $out/api
-  #   '';
-
-  #   meta = {
-  #     description = "API for example package";
-  #     license = stdenv.lib.licenses.mit;
-  #   };
-  # };
 
   patchedVencord = lib.traceValFn (d: d.outPath) (applyPostPatch vencordPkgs);
-  #patchedVencordSym = 
-  # patchedVencordSym = pkgs.runCommand "vencord-sym" {} ''
-  #   mkdir -p $out
-  # '';
+
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
   # Define regular expressions for GitHub and Git URLs
@@ -148,7 +146,7 @@ let
     if (builtins.length list <= 1) then (builtins.elemAt list 0) else
       recursiveUpdateAttrsList ([
         (attrsets.recursiveUpdate (builtins.elemAt list 0) (builtins.elemAt list 1))
-      ] ++ (lists.drop 2 list));
+      ] ++ (lists.drop 2 list)); 
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
 
