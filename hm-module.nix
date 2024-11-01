@@ -50,7 +50,7 @@ let
     buildWebExtension = false;
   });
     
-  applyPostPatch = lib.traceValFn (d: d.api) (pkg:
+  applyPostPatch = lib.traceValFn (d: "apiPath: ${toString d.api}") (pkg:
     pkg.overrideAttrs (oldAttrs: {
      outputs = ["out" "api"];
 
