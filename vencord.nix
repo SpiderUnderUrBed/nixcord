@@ -60,8 +60,9 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   buildPhase = ''
-    mkdir -p $api
+    #mkdir -p $api
     mv src/api/* $api/
+    rmdir src/api
     ln -sf $api src/api
     #ln -sf src/api $api 
 
