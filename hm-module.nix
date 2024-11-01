@@ -61,8 +61,7 @@ let
 
       postPatch = ''
         mkdir -p $api
-        mv src/api/* $api/
-        ln -sf $api src/api
+        ln -sf src/api $api 
 
         ln -s ${userPluginsDirectory} src/userplugins
       '';
