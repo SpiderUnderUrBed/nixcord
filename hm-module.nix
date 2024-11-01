@@ -52,18 +52,18 @@ let
     
   applyPostPatch = pkg:
     pkg.overrideAttrs (oldAttrs: {
-      outputs = ["out" "api"];
+     outputs = ["out" "api"];
 
-      postUnpack = ''
+      # postUnpack = ''
+      #   mkdir -p $api
+      #   mv src/api/* $api/
+      #   ln -sf $api $out/api
+      # '';
+
+      postPatch = ''
         mkdir -p $api
         mv src/api/* $api/
-        ln -sf $api $out/api
-      '';
-      
-      postPatch = ''
-        # mkdir -p $api
-        # mv src/api/* $api/
-        # ln -sf $api $out/api
+        ln -sf $api src/api
 
         ln -s ${userPluginsDirectory} src/userplugins
       '';
