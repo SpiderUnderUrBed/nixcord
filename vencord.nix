@@ -73,7 +73,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   installPhase = ''
     #runHook preInstall
-
+    cp -r ./ $out
     #cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
 
     #runHook postInstall
