@@ -53,12 +53,6 @@ let
   applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
      outputs = ["out" "api"];
 
-      # postUnpack = ''
-      #   mkdir -p $api
-      #   mv src/api/* $api/
-      #   ln -sf $api $out/api
-      # '';
-
       postPatch = ''
         mkdir -p $api
         ln -sf src/api $api 
@@ -149,7 +143,7 @@ let
 
   pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
   
-  apiPath = applyPostPatch.api;
+  apiPath = vencord.api;
   buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
     let
       fullPath = "${pluginDir}";
