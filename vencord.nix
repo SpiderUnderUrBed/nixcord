@@ -64,24 +64,22 @@ stdenv.mkDerivation (finalAttrs: {
     mv src/api/* $api/
     rmdir src/api
     ln -sf $api src/api
-    #ln -sf src/api $api 
 
-    #runHook preBuild
+    runHook preBuild
 
-    #pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
-    #  -- --standalone --disable-updater
+    pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
+     -- --standalone --disable-updater
 
-    #runHook postBuild
+    runHook postBuild
   '';
 
   installPhase = ''
-    #runHook preInstall
-    cp -r ./ $out
-    #cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
+    #cp -r ./ $out
+    runHook preInstall
 
-    #runHook postInstall
+    cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
 
-
+    runHook postInstall
   '';
 
   # fixupPhase = ''
