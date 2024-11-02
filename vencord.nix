@@ -1,5 +1,6 @@
 {
   buildNpmPackage,
+  fetchgit,
   curl,
   esbuild,
   fetchFromGitHub,
