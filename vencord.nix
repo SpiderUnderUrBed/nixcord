@@ -29,7 +29,7 @@ stdenv.mkDerivation {
     nodejs
     pnpm.configHook
     pnpmDeps
-  ] 
+  ];
   #++ (if builtins.hasAttr "pnpm" pkgs then [ pnpmDeps ] else []);
 
   env = {
