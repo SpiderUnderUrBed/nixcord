@@ -1,8 +1,11 @@
 { pkgs, buildNpmPackage, fetchgit, curl, esbuild, fetchFromGitHub, git, jq, lib, nix-update, nodejs, pnpm, stdenv, writeShellScript, buildWebExtension ? false }:
-stdenv.mkDerivation {
-  #inherit pname version;
+
+let
+  pname = "vencord";
   version = "1.10.5";
-  pname = "vencord";  # Define pname here
+in
+stdenv.mkDerivation {
+  inherit pname version;
 
   outputs = [ "out" "api" "node_modules" ];
 
@@ -14,16 +17,15 @@ stdenv.mkDerivation {
   };
 
   pnpmDeps = pnpm.fetchDeps {
-    inherit (finalAttrs) pname src;
-
+    pname = "${pname}-deps";
+    src = src;
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
+
   nativeBuildInputs = [
     git
     nodejs
     pnpm.configHook
-    # Add nodeModules as a build input
-    #nodeModules
   ];
 
   env = {
@@ -41,7 +43,7 @@ stdenv.mkDerivation {
         }
       )
     );
-    VENCORD_REMOTE = "${repo.owner}/${repo.repo}";
+    VENCORD_REMOTE = "${src.owner}/${src.repo}";
     VENCORD_HASH = "deadbeef";
   };
 
