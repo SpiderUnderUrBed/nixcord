@@ -67,6 +67,8 @@ stdenv.mkDerivation (finalAttrs: {
     rmdir src/api
     ln -sf "$api_path" src/api
     
+    runHook preBuild
+
     substituteInPlace ./scripts/build/common.mjs \
       --replace-warn 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
@@ -74,8 +76,6 @@ stdenv.mkDerivation (finalAttrs: {
         'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, async (args) => { const fs = await import("fs"); const path = await import("path"); let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); const extensions = [".ts", ".tsx", ".js", ".jsx"]; for (const ext of extensions) { const testPath = path.resolve(resolvedPath + ext); if (fs.existsSync(testPath)) { return { path: testPath }; } } if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath = path.join(resolvedPath, "index"); for (const ext of extensions) { const testPath = resolvedPath + ext; if (fs.existsSync(testPath)) { return { path: testPath }; } } } return { path: resolvedPath }; }); } }]' \
       --replace-warn 'esbuild.build({' \
              'esbuild.build({ resolveExtensions: [".ts", ".tsx", ".js", ".jsx"],'
-
-    runHook preBuild
 
     pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
      -- --standalone --disable-updater
