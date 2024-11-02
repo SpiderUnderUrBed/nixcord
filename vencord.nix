@@ -3,22 +3,42 @@
 let
   pname = "vencord";
   version = "1.10.5";
-  owner = "Vendicated";
   repo = fetchFromGitHub {
-    inherit owner;
-    repo = pname;
-    rev = "v${version}";
-    hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
+      inherit owner;
+      repo = pname;
+      rev = "v${version}";
+      hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
-
   pnpmDeps = pnpm.fetchDeps {
     pname = "${pname}";
     src = repo;
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
+  pnpmToNPM = buildNpmPackage rec {
+    pname = "pnpm-lock-to-npm-lock";
+    version = "1.0.0";
+    src = fetchFromGitHub {
+      owner = "jakedoublev";
+      repo = "pnpm-lock-to-npm-lock";
+      rev = "va67f352";
+    };
+  };
+  npmDeps = buildNpmPackage rec {
+    pname = "vencord-deps";
+    version = "1.0.0";
+    nativeBuildInputs = [
+      pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
+      nodejs
+      pnpm
+    ];
+    postPatch = ''
+     pnpm-lock-to-npm-lock pnpm-lock.yaml
+    '';
+  };
 in
 stdenv.mkDerivation {
   inherit pname version pnpmDeps;
+  owner = "Vendicated";
 
   outputs = [ "out" "api" "node_modules" ];
 
@@ -29,6 +49,7 @@ stdenv.mkDerivation {
     nodejs
     pnpm.configHook
     pnpmDeps
+    pnpmToNPM
   ];
   #++ (if builtins.hasAttr "pnpm" pkgs then [ pnpmDeps ] else []);
 
@@ -53,13 +74,14 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     api_path=$api
-    node_module_path=${pnpmDeps}/node_modules
+    node_module_path=${npmDeps}/node_modules
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
     rmdir src/api
     ln -sf "$api_path" src/api
 
+    
     # Link the pre-fetched node_modules
     mkdir -p node_modules
     ln -sf "$node_module_path" node_modules
