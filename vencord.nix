@@ -20,8 +20,8 @@ let
     pname = "pnpm-lock-to-npm-lock";
     version = "1.0.0";
     npmDepsHash = "sha256-u8Ylcc5esJeaqvBv/X0ZG5xB6pAy38J+ENcd+8QIOIE=";
-    makeCacheWritable = true;
-    npmFlags = [ "--legacy-peer-deps" "--omit=peer"];
+    #makeCacheWritable = true;
+   # npmFlags = [ "--legacy-peer-deps" "--omit=peer"];
     src = fetchgit {
       url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
       hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
