@@ -17,11 +17,10 @@ let
 nanoid = buildNpmPackage rec {
   pname = "nanoid";
   version = "5.0.8";
-  src = fetchFromGitHub {
-    owner = "ai";
-    repo = pname;
-    rev = "v${version}";
-    hash = "sha256-m3FDQucZywILL2CRA5Ris4Ry2YHVFbwBxZ6knz8scuA=";
+  src = fetchgit {
+    url = "https://github.com/ai/nanoid.git";
+    rev = "55cd90d";
+    sha256 = "m3FDQucZywILL2CRA5Ris4Ry2YHVFbwBxZ6knz8scuA=";
   };
 };
 in
