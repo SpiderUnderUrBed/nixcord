@@ -19,15 +19,16 @@ let
     nativeBuildInputs = [
       nodejs
     ];
+    #sha256-VTNmPkXiuNO5q8c054jUjKIx5GZC9PxFwlXN9FmyUNA=
     buildPhase = ''
       cp $src/package.json $out
     '';
     installPhase = ''
-      npm install . --force
+      npm install . --package-lock-only --force
     '';
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-W8tkozmHug4nQZKUzAfzedYsK1qpSIErcWE+c4RhMlk=";
+    outputHash = "sha256-VTNmPkXiuNO5q8c054jUjKIx5GZC9PxFwlXN9FmyUNA=";
   };
 # nodeModules 
 # = buildNpmPackage rec {
