@@ -68,26 +68,28 @@ stdenv.mkDerivation (finalAttrs: {
     ln -sf "$api_path" src/api
 
     substituteInPlace ./scripts/build/common.mjs \
-      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
-              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
-      --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, (args) => { \
-                  const path = args.path.replace(/^@api/, "'"$api_path"'"); \
-                  const fs = require("fs"); \
+  --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
+          'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
+  --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
+          'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup: function(build) { build.onResolve({ filter: /^@api\// }, function(args) { \
+              const path = args.path.replace(/^@api/, "'"$api_path"'"); \
+              const fs = require("fs"); \
+              return new Promise((resolve, reject) => { \
                   fs.stat(path, (err, stats) => { \
                       if (!err) { \
                           if (stats.isDirectory()) { \
-                              return { path: path + "/index.ts" }; \
+                              resolve({ path: path + "/index.ts" }); \
                           } else { \
-                              return { path: path }; \
+                              resolve({ path: path }); \
                           } \
                       } else if (err.code === "ENOENT") { \
-                          return { path: path + ".tsx" }; \
+                          resolve({ path: path + ".tsx" }); \
                       } else { \
-                          throw err; \
+                          reject(err); \
                       } \
                   }); \
-              }); } }]'
+              }); \
+          }); } }]'
 
 
     runHook preBuild
