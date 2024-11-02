@@ -66,12 +66,12 @@ stdenv.mkDerivation (finalAttrs: {
     mv src/api/* "$api_path/"
     rmdir src/api
     ln -sf "$api_path" src/api
-
+    
     substituteInPlace ./scripts/build/common.mjs \
       --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
       --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, args => { return { path: args.path.replace(/^@api/, "'"$api_path"'") }; }); } }]'
+              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, args => { return { path: args.path.replace(/^@api/, "'"$api_path"'") + ".ts" }; }); } }]'
 
     runHook preBuild
 
