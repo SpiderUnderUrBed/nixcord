@@ -71,7 +71,9 @@ stdenv.mkDerivation (finalAttrs: {
       --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
       --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, function(args) { return { path: args.path.replace(/^@api/, "'"$api_path"'")}; }); } }, resolveExtensions: [".ts", ".tsx", ".js", ".jsx"]]'
+              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, function(args) { return { path: args.path.replace(/^@api/, "'"$api_path"'") }; }); } }]' \
+      --replace 'esbuild.build({' \
+              'esbuild.build({ resolveExtensions: [".ts", ".tsx", ".js", ".jsx"],'
 
     runHook preBuild
 
