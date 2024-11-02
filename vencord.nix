@@ -66,12 +66,29 @@ stdenv.mkDerivation (finalAttrs: {
     mv src/api/* "$api_path/"
     rmdir src/api
     ln -sf "$api_path" src/api
-    
+
     substituteInPlace ./scripts/build/common.mjs \
       --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
       --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, args => { return { path: args.path.replace(/^@api/, "'"$api_path"'") + ".ts" }; }); } }]'
+              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, async args => { \
+                  const path = args.path.replace(/^@api/, "'"$api_path"'"); \
+                  const { stat } = require("fs").promises; \
+                  try { \
+                      const stats = await stat(path); \
+                      if (stats.isDirectory()) { \
+                          return { path: path + "/index.ts" }; \
+                      } else { \
+                          return { path: path }; \
+                      } \
+                  } catch (error) { \
+                      if (error.code === "ENOENT") { \
+                          return { path: path + ".tsx" }; \
+                      } else { \
+                          throw error; \
+                      } \
+                  } \
+              }); } }]'
 
     runHook preBuild
 
