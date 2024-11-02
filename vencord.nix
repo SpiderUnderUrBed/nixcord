@@ -20,7 +20,7 @@ let
     version = "1.0.0";
     src = fetchgit {
     url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
-    ref = "main";
+    #ref = "main";
     #rev = "main";  # Make sure this commit exists
   };
   };
