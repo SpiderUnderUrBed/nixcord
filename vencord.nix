@@ -56,7 +56,7 @@ stdenv.mkDerivation {
     api_path=$api
     node_module_path=${nodeModules}/node_modules
     
-    cp ${src}/package-lock.json .
+    cp $src/package-lock.json $out/
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
