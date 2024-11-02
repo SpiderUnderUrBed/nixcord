@@ -9,9 +9,6 @@ let
     repo = pname;
     rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
-    fetchAttrs = {
-      lockFile = "pnpm-lock.yaml";  
-    };
   };
 
   # Vendored node modules using buildNpmPackage
