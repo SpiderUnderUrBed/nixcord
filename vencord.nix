@@ -22,7 +22,7 @@ let
     npmDepsHash = "sha256-u8Ylcc5esJeaqvBv/X0ZG5xB6pAy38J+ENcd+8QIOIE=";
     src = fetchgit {
       url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
-      #hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+      hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
      # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
       #rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";  
     };
