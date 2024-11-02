@@ -3,6 +3,7 @@
 let
   pname = "vencord";
   version = "1.10.5";
+  owner = "Vendicated";
 in
 stdenv.mkDerivation {
   inherit pname version;
@@ -10,7 +11,7 @@ stdenv.mkDerivation {
   outputs = [ "out" "api" "node_modules" ];
 
   src = fetchFromGitHub {
-    owner = "Vendicated";
+    inherit owner;
     repo = pname;
     rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
@@ -43,7 +44,7 @@ stdenv.mkDerivation {
         }
       )
     );
-    VENCORD_REMOTE = "${src.owner}/${src.repo}";
+    VENCORD_REMOTE = "${owner}/${pname}";
     VENCORD_HASH = "deadbeef";
   };
 
@@ -88,7 +89,7 @@ stdenv.mkDerivation {
         nix-update
       ]
     }:$PATH"
-    ghTags=$(curl ''${GITHUB_TOKEN:+" -u \":$GITHUB_TOKEN\""} "https://api.github.com/repos/Vendicated/Vencord/tags")
+    ghTags=$(curl ''${GITHUB_TOKEN:+" -u \":$GITHUB_TOKEN\""} "https://api.github.com/repos/${owner}/${pname}/tags")
     latestTag=$(echo "$ghTags" | jq -r .[0].name)
 
     echo "Latest tag: $latestTag"
