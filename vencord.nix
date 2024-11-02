@@ -32,26 +32,30 @@ let
   #  src = 
 
   # Fetch and cache dependencies using pnpm
-  deps = pnpm.fetchDeps {
-    src = fetchgit {
-      url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
-      hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
-      # Optionally specify the revision
-      # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
-    };
-    lockFile = "${src}/pnpm-lock.yaml";
-  };
+  #deps = pnpm.fetchDeps {
+   # src = fetchgit {
+  #    url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
+  #    hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+  #    # Optionally specify the revision
+  #    # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
+  #  };
+  #  lockFile = "${src}/pnpm-lock.yaml";
+  #};
   npmDeps = buildNpmPackage rec {
     pname = "vencord-deps";
     version = "1.0.0";
     src = repo;
-    nativeBuildInputs = [
-     # pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
-      nodejs
-      pnpm
-    ];
+    # nativeBuildInputs = [
+    #  # pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
+    #   nodejs
+    #   pnpm
+    # ];
+    installPhase = ''
+      pnpm install .
+    '';
     postPatch = ''
-     ${pnpmToNPM}/node_modules/pnpm-lock-to-npm-lock/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
+    
+    # ${pnpmToNPM}/node_modules/pnpm-lock-to-npm-lock/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
 in
