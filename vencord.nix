@@ -58,48 +58,52 @@ stdenv.mkDerivation (finalAttrs: {
     # TODO: somehow update this automatically
     VENCORD_HASH = "deadbeef";
   };
-buildPhase = ''
-  api_path="$(realpath "$api")"
+{
+  # Other configurations
 
-  mkdir -p "$api_path"
-  mv src/api/* "$api_path/"
-  rmdir src/api
-  ln -sf "$api_path" src/api
+  buildPhase = ''
+    api_path="$(realpath "$api")"
 
-  # Substitute logic to append the correct file extension or index file
-  substituteInPlace ./scripts/build/common.mjs \
-    --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
-            'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
-    --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-            ''"plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { \
-              name: \"alias-plugin\", \
-              setup(build) { \
-                build.onResolve({ filter: /^@api\\// }, args => { \
-                  let path = args.path.replace(/^@api\\//, \"$api_path\"); \
-                  if (path.endsWith(\".ts\")) { \
-                    return { path: path }; \
-                  } else if (path.endsWith(\".tsx\")) { \
-                    return { path: path }; \
-                  } else if (isDirectory(path)) { \
-                    if (fileExists(path + \"/index.ts\")) { \
-                      return { path: path + \"/index.ts\" }; \
-                    } else if (fileExists(path + \"/index.tsx\")) { \
-                      return { path: path + \"/index.tsx\" }; \
+    mkdir -p "$api_path"
+    mv src/api/* "$api_path/"
+    rmdir src/api
+    ln -sf "$api_path" src/api
+
+    # Substitute logic to append the correct file extension or index file
+    substituteInPlace ./scripts/build/common.mjs \
+      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
+              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
+      --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
+              ''"plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { \
+                name: \"alias-plugin\", \
+                setup(build) { \
+                  build.onResolve({ filter: /^@api\\// }, args => { \
+                    let path = args.path.replace(/^@api\\//, \"$api_path\"); \
+                    if (path.endsWith(\".ts\")) { \
+                      return { path: path }; \
+                    } else if (path.endsWith(\".tsx\")) { \
+                      return { path: path }; \
+                    } else if (isDirectory(path)) { \
+                      if (fileExists(path + \"/index.ts\")) { \
+                        return { path: path + \"/index.ts\" }; \
+                      } else if (fileExists(path + \"/index.tsx\")) { \
+                        return { path: path + \"/index.tsx\" }; \
+                      } \
+                    } else { \
+                      throw new Error(\"Cannot resolve module path: \" + path); \
                     } \
-                  } else { \
-                    throw new Error(\"Cannot resolve module path: \" + path); \
-                  } \
-                }); \
-              } \
-            }]"''
+                  }); \
+                } \
+              }]"''
 
-  runHook preBuild
+    runHook preBuild
 
-  pnpm run "${if buildWebExtension then "buildWeb" else "build"}" \
-   -- --standalone --disable-updater
+    pnpm run "${if buildWebExtension then "buildWeb" else "build"}" \
+     -- --standalone --disable-updater
 
-  runHook postBuild
-'';
+    runHook postBuild
+  '';
+}
 
   installPhase = ''
     #cp -r ./ $out
