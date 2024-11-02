@@ -1,6 +1,6 @@
 {
  # buildNpmPackage,
-  fetchgit,
+ # fetchgit,
   curl,
   esbuild,
   fetchFromGitHub,
@@ -67,7 +67,7 @@ stdenv.mkDerivation (finalAttrs: {
     rmdir src/api
     ln -sf "$api_path" src/api
 
-    pnpm install .
+    pnpm install . -w
     
     mkdir -p "$node_module_path"
     mv node_modules/* "$node_module_path/"
