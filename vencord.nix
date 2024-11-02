@@ -10,30 +10,17 @@ let
       rev = "v${version}";
       hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
-  # pnpmToNPM = buildNpmPackage rec {
-  #   pname = "pnpm-lock-to-npm-lock";
-  #   version = "1.0.0";
-  #   npmDepsHash = "sha256-u8Ylcc5esJeaqvBv/X0ZG5xB6pAy38J+ENcd+8QIOIE=";
-  #   #makeCacheWritable = true;
-  #  # npmFlags = [ "--legacy-peer-deps" "--omit=peer"];
-  #   src = fetchgit {
-  #     url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
-  #     hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
-  #    # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
-  #     #rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";  
-  #   };
-  # };
-  #  src = 
-
-  # Fetch and cache dependencies using pnpm
-  pnpmDeps = pkgs.pnpm.fetchDeps {
-    src = pkgs.fetchFromGitHub {
+  pnpmToNpmRepo = pkgs.fetchFromGitHub {
       owner = "jakedoublev";
       repo = "pnpm-lock-to-npm-lock";
       rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
       sha256 = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
     };
-    lockFile = "${src}/pnpm-lock.yaml";
+
+  # Fetch and cache dependencies using pnpm
+  pnpmDeps = pkgs.pnpm.fetchDeps {
+    src = pnpmToNpmRepo;
+    lockFile = "${pnpmToNpmRepo}/pnpm-lock.yaml";
   };
 
   # Build the `pnpm-lock-to-npm-lock` tool without requiring network access
