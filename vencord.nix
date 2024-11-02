@@ -1,42 +1,29 @@
-{
- # buildNpmPackage,
- # fetchgit,
-  curl,
-  esbuild,
-  fetchFromGitHub,
-  git,
-  jq,
-  lib,
-  nix-update,
-  nodejs,
-  pnpm,
-  stdenv,
-  writeShellScript,
-  buildWebExtension ? false,
-}:
+{ buildNpmPackage, fetchgit, curl, esbuild, fetchFromGitHub, git, jq, lib, nix-update, nodejs, pnpm, stdenv, writeShellScript, buildWebExtension ? false }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
-  
+
   outputs = ["out" "api" "node_modules"];
 
-  src = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
+  src = fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
     rev = "v${finalAttrs.version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
-  });
+  };
 
-  pnpmDeps = pnpm.fetchDeps {
-    inherit (finalAttrs) pname src;
-    hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
+  # This is where we add the vendored node_modules
+  nodeModules = buildNpmPackage rec {
+    pname = "vencord-deps";
+    src = src;
+    inherit nodejs;
+    lockfile = ./pnpm-lock.yaml;  # Point to your pre-generated lock file
   };
 
   nativeBuildInputs = [
     git
     nodejs
-    pnpm.configHook
   ];
 
   env = {
@@ -58,20 +45,18 @@ stdenv.mkDerivation (finalAttrs: {
     VENCORD_HASH = "deadbeef";
   };
 
+  buildInputs = [ nodeModules ];
+
   buildPhase = ''
     api_path=$api
-    node_module_path=$node_modules
+    node_module_path=$nodeModules
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
     rmdir src/api
     ln -sf "$api_path" src/api
 
-    pnpm install . -w
-    
     mkdir -p "$node_module_path"
-    mv node_modules/* "$node_module_path/"
-    rmdir node_modules
     ln -sf "$node_module_path" node_modules
 
     runHook preBuild
