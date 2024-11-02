@@ -23,6 +23,14 @@ let
       repo = "pnpm-lock-to-npm-lock";
       rev = "va67f352";
     };
+    buildInputs = [ pkgs.makeWrapper ];
+
+    installPhase = ''
+      mkdir -p $out/bin
+      cp pnpm-lock-to-npm-lock.js $out/bin/pnpm-lock-to-npm-lock
+      chmod +x $out/bin/pnpm-lock-to-npm-lock
+      wrapProgram $out/bin/pnpm-lock-to-npm-lock --run "node $out/bin/pnpm-lock-to-npm-lock.js"
+    '';
   };
   npmDeps = buildNpmPackage rec {
     pname = "vencord-deps";
