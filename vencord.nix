@@ -3,6 +3,7 @@
 let
   pname = "vencord";
   version = "1.10.5";
+  owner = "Vendicated";
   repo = fetchFromGitHub {
       inherit owner;
       repo = pname;
@@ -37,8 +38,7 @@ let
   };
 in
 stdenv.mkDerivation {
-  inherit pname version pnpmDeps;
-  owner = "Vendicated";
+  inherit pname version owner pnpmDeps;
 
   outputs = [ "out" "api" "node_modules" ];
 
