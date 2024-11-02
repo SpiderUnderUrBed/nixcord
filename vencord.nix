@@ -1,70 +1,27 @@
 { pkgs, buildNpmPackage, fetchgit, curl, esbuild, fetchFromGitHub, git, jq, lib, nix-update, nodejs, pnpm, stdenv, writeShellScript, buildWebExtension ? false }:
-
-let
+stdenv.mkDerivation {
+  #inherit pname version;
   version = "1.10.5";
   pname = "vencord";  # Define pname here
 
-  repo = fetchFromGitHub {
+  outputs = [ "out" "api" "node_modules" ];
+
+  src = fetchFromGitHub {
     owner = "Vendicated";
     repo = pname;
     rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
 
-  # Vendored node modules using buildNpmPackage
-  nodeModules = pkgs.stdenv.mkDerivation {
-    inherit version;
-    pname = "${pname}-deps";  
-    src = repo;
-    nativeBuildInputs = [
-      nodejs
-    ];
-    #sha256-VTNmPkXiuNO5q8c054jUjKIx5GZC9PxFwlXN9FmyUNA=
-    buildPhase = ''
-      cp $src/package.json $out
-    '';
-    installPhase = ''
-      npm install . --package-lock-only
-    '';
-    outputHashAlgo = "sha256";
-    outputHashMode = "recursive";
-    outputHash = "sha256-VTNmPkXiuNO5q8c054jUjKIx5GZC9PxFwlXN9FmyUNA=";
+  pnpmDeps = pnpm.fetchDeps {
+    inherit (finalAttrs) pname src;
+
+    hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
-# nodeModules 
-# = buildNpmPackage rec {
-#   inherit pname version;
-#   src = repo;
-#   inherit nodejs;
-
-#   # Use the lockfile if it’s available
-#   lockfile = "${src}/package-lock.json";  # Or "${src}/pnpm-lock.yaml" for pnpm
-
-#   # Optional: Fake hash to bypass online checking
-#   npmDepsHash = lib.fakeHash;
-
-#   # nativeBuildInputs = [
-#   #  # nodejs
-#   #   pkgs.pnpm  # Ensure pnpm is available
-#   # ];
-
-#   postPatch = ''
-#     # Generate lockfile offline
-#     ${pkgs.nodejs}/bin/npm install --package-lock-only --offline
-#   '';
-# };
-
-
-in
-stdenv.mkDerivation {
-  inherit pname version;
-
-  outputs = [ "out" "api" "node_modules" ];
-
-  src = repo;
-
   nativeBuildInputs = [
     git
     nodejs
+    pnpm.configHook
     # Add nodeModules as a build input
     #nodeModules
   ];
@@ -90,7 +47,7 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     api_path=$api
-    node_module_path=${nodeModules}/node_modules
+    node_module_path=${pnpmDeps}/node_modules
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
