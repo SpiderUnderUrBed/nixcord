@@ -1,24 +1,26 @@
 { buildNpmPackage, fetchgit, curl, esbuild, fetchFromGitHub, git, jq, lib, nix-update, nodejs, pnpm, stdenv, writeShellScript, buildWebExtension ? false }:
+
 let
   version = "1.10.5";
+  pname = "vencord";  # Define pname here
+
   repo = fetchFromGitHub {
     owner = "Vendicated";
-    repo = "Vencord";
+    repo = pname;
     rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
 
   # Vendored node modules using buildNpmPackage
   nodeModules = buildNpmPackage rec {
-    pname = "vencord-deps";
-    src = src;
+    inherit pname version;  # Ensure pname and version are inherited
+    src = repo;
     inherit nodejs;
     lockfile = ./pnpm-lock.yaml;  # Point to your pre-generated lock file
   };
 in
-stdenv.mkDerivation (finalAttrs: {
-  inherit version;
-  pname = "vencord";
+stdenv.mkDerivation {
+  inherit pname version;
 
   outputs = [ "out" "api" "node_modules" ];
 
@@ -46,7 +48,7 @@ stdenv.mkDerivation (finalAttrs: {
         }
       )
     );
-    VENCORD_REMOTE = "${finalAttrs.src.owner}/${finalAttrs.src.repo}";
+    VENCORD_REMOTE = "${repo.owner}/${repo.repo}";
     VENCORD_HASH = "deadbeef";
   };
 
@@ -109,4 +111,4 @@ stdenv.mkDerivation (finalAttrs: {
       Scrumplex
     ];
   };
-})
+}
