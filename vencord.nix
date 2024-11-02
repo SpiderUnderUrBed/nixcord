@@ -32,32 +32,45 @@ let
   #  src = 
 
   # Fetch and cache dependencies using pnpm
-  #deps = pnpm.fetchDeps {
-   # src = fetchgit {
-  #    url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
-  #    hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
-  #    # Optionally specify the revision
-  #    # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
-  #  };
-  #  lockFile = "${src}/pnpm-lock.yaml";
-  #};
-  npmDeps = buildNpmPackage rec {
-    pname = "vencord-deps";
+  pnpmLockToNpmLock = pkgs.stdenv.mkDerivation rec {
+    pname = "pnpm-lock-to-npm-lock";
     version = "1.0.0";
-    src = pnpmDeps;
-    # nativeBuildInputs = [
-    #  # pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
-    #   nodejs
-    #   pnpm
-    # ];
-    installPhase = ''
-      pnpm install .
-    '';
-    postPatch = ''
 
+    src = pkgs.fetchFromGitHub {
+      owner = "jakedoublev";
+      repo = "pnpm-lock-to-npm-lock";
+      rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
+      sha256 = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+    };
+
+    buildInputs = [ pkgs.nodejs pkgs.pnpm ];
+
+    # Install pnpm dependencies and build the package
+    installPhase = ''
+      pnpm install
+      mkdir -p $out/bin
+      ln -s $(pwd)/bin/pnpm-lock-to-npm-lock $out/bin/
     '';
   };
-  # ${pnpmToNPM}/node_modules/pnpm-lock-to-npm-lock/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
+
+  # Main derivation that depends on `pnpm-lock-to-npm-lock`
+  npmDeps = pkgs.stdenv.mkDerivation rec {
+    pname = "vencord-deps";
+    version = "1.0.0";
+    src = fetchgit {
+      url = "https://github.com/your-repo/vencord";
+      rev = "your-revision";
+      sha256 = "your-hash";
+    };
+
+    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm pnpmLockToNpmLock ];
+
+    # Use the pnpm-lock-to-npm-lock binary to convert the pnpm lockfile
+    postPatch = ''
+      pnpm install
+      ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
+    '';
+  };
 in
 stdenv.mkDerivation {
   inherit pname version owner pnpmDeps;
@@ -71,7 +84,7 @@ stdenv.mkDerivation {
     nodejs
     pnpm.configHook
     pnpmDeps
-    #npmDeps
+    pnpmToNPM
   ];
   #++ (if builtins.hasAttr "pnpm" pkgs then [ pnpmDeps ] else []);
 
