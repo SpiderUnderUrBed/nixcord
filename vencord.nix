@@ -16,18 +16,30 @@ let
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
 
-  pnpmToNPM = buildNpmPackage rec {
-    pname = "pnpm-lock-to-npm-lock";
-    version = "1.0.0";
-    npmDepsHash = "sha256-u8Ylcc5esJeaqvBv/X0ZG5xB6pAy38J+ENcd+8QIOIE=";
-    #makeCacheWritable = true;
-   # npmFlags = [ "--legacy-peer-deps" "--omit=peer"];
+  # pnpmToNPM = buildNpmPackage rec {
+  #   pname = "pnpm-lock-to-npm-lock";
+  #   version = "1.0.0";
+  #   npmDepsHash = "sha256-u8Ylcc5esJeaqvBv/X0ZG5xB6pAy38J+ENcd+8QIOIE=";
+  #   #makeCacheWritable = true;
+  #  # npmFlags = [ "--legacy-peer-deps" "--omit=peer"];
+  #   src = fetchgit {
+  #     url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
+  #     hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+  #    # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
+  #     #rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";  
+  #   };
+  # };
+  #  src = 
+
+  # Fetch and cache dependencies using pnpm
+  deps = pnpm.fetchDeps {
     src = fetchgit {
       url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
       hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
-     # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
-      #rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";  
+      # Optionally specify the revision
+      # rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
     };
+    lockFile = "${src}/pnpm-lock.yaml";
   };
   npmDeps = buildNpmPackage rec {
     pname = "vencord-deps";
