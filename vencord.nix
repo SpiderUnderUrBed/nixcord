@@ -54,10 +54,10 @@ let
       pnpm install .
     '';
     postPatch = ''
-    
-    # ${pnpmToNPM}/node_modules/pnpm-lock-to-npm-lock/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
+
     '';
   };
+  # ${pnpmToNPM}/node_modules/pnpm-lock-to-npm-lock/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
 in
 stdenv.mkDerivation {
   inherit pname version owner pnpmDeps;
