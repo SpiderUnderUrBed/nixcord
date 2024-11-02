@@ -1,5 +1,4 @@
-{
-  curl,
+{ curl,
   esbuild,
   fetchFromGitHub,
   git,
@@ -12,24 +11,22 @@
   writeShellScript,
   buildWebExtension ? false,
 }:
+
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
   
   outputs = ["out" "api"];
 
- # trace = import <nixpkgs> { }.trace;
   src = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
     rev = "v${finalAttrs.version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   });
- # srcOutPath = src.outPath;
 
   pnpmDeps = pnpm.fetchDeps {
     inherit (finalAttrs) pname src;
-
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
 
@@ -55,11 +52,27 @@ stdenv.mkDerivation (finalAttrs: {
       )
     );
     VENCORD_REMOTE = "${finalAttrs.src.owner}/${finalAttrs.src.repo}";
-    # TODO: somehow update this automatically
-    VENCORD_HASH = "deadbeef";
+    VENCORD_HASH = "deadbeef";  # TODO: update automatically
   };
 
-  # Other configurations
+  # Function to determine the appropriate path suffix based on the existence of files or directories
+  determinePathSuffix = apiPath: let
+    isDir = builtins.pathExists "${apiPath}/";  # Check if apiPath is a directory
+    tsFileExists = builtins.pathExists "${apiPath}.ts";  # Check if .ts file exists
+    tsxFileExists = builtins.pathExists "${apiPath}.tsx";  # Check if .tsx file exists
+    indexTsExists = isDir && builtins.pathExists "${apiPath}/index.ts";  # Check if index.ts exists
+    indexTsxExists = isDir && builtins.pathExists "${apiPath}/index.tsx";  # Check if index.tsx exists
+  in
+    if tsFileExists then
+      ".ts"
+    else if tsxFileExists then
+      ".tsx"
+    else if indexTsExists then
+      "/index.ts"
+    else if indexTsxExists then
+      "/index.tsx"
+    else
+      "";  # Return empty if no valid file is found
 
   buildPhase = ''
     api_path="$(realpath "$api")"
@@ -69,44 +82,24 @@ stdenv.mkDerivation (finalAttrs: {
     rmdir src/api
     ln -sf "$api_path" src/api
 
-    # Substitute logic to append the correct file extension or index file
+    # Get the appropriate suffix using Nix logic
+    path_suffix="${determinePathSuffix api_path}"
+
     substituteInPlace ./scripts/build/common.mjs \
       --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
       --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-              ''"plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { \
-                name: \"alias-plugin\", \
-                setup(build) { \
-                  build.onResolve({ filter: /^@api\\// }, args => { \
-                    let path = args.path.replace(/^@api\\//, \"$api_path\"); \
-                    if (path.endsWith(\".ts\")) { \
-                      return { path: path }; \
-                    } else if (path.endsWith(\".tsx\")) { \
-                      return { path: path }; \
-                    } else if (isDirectory(path)) { \
-                      if (fileExists(path + \"/index.ts\")) { \
-                        return { path: path + \"/index.ts\" }; \
-                      } else if (fileExists(path + \"/index.tsx\")) { \
-                        return { path: path + \"/index.tsx\" }; \
-                      } \
-                    } else { \
-                      throw new Error(\"Cannot resolve module path: \" + path); \
-                    } \
-                  }); \
-                } \
-              }]"''
-
+              "plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: \"alias-plugin\", setup(build) { build.onResolve({ filter: /^@api\\// }, args => { return { path: args.path.replace(/^@api/, \"${api_path}\") + \"${path_suffix}\" }; }); } }]"
+    
     runHook preBuild
 
-    pnpm run "${if buildWebExtension then "buildWeb" else "build"}" \
+    pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
      -- --standalone --disable-updater
 
     runHook postBuild
   '';
 
-
   installPhase = ''
-    #cp -r ./ $out
     runHook preInstall
 
     cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
@@ -114,14 +107,6 @@ stdenv.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-  # fixupPhase = ''
-  #     rm -rf $out/src
-  #     mv $out/dist/* $out
-  #     rm -rf $out/dist
-  # '';
-
-  # We need to fetch the latest *tag* ourselves, as nix-update can only fetch the latest *releases* from GitHub
-  # Vencord had a single "devbuild" release that we do not care about
   passthru.updateScript = writeShellScript "update-vencord" ''
     export PATH="${
       lib.makeBinPath [
