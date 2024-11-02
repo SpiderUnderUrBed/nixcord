@@ -4,9 +4,15 @@ let
   pname = "vencord";
   version = "1.10.5";
   owner = "Vendicated";
+  repo = fetchFromGitHub {
+    inherit owner;
+    repo = pname;
+    rev = "v${version}";
+    hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
+  };
   pnpmDeps = pnpm.fetchDeps {
     pname = "${pname}-deps";
-    src = src;
+    src = repo;
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
 in
@@ -15,12 +21,7 @@ stdenv.mkDerivation {
 
   outputs = [ "out" "api" "node_modules" ];
 
-  src = fetchFromGitHub {
-    inherit owner;
-    repo = pname;
-    rev = "v${version}";
-    hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
-  };
+  src = repo;
 
   nativeBuildInputs = [
     git
