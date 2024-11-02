@@ -12,16 +12,26 @@ let
   };
 
   # Vendored node modules using buildNpmPackage
-  nodeModules = buildNpmPackage rec {
-    inherit pname version;  # Ensure pname and version are inherited
-    src = repo;
-    inherit nodejs;
-    lockfile = "${src}/pnpm-lock.yaml";  # Point to your pre-generated lock file
-    npmDepsHash = lib.fakeHash;
-    #postPatch = ''
-    #  touch package-lock.json
-    #'';
-  };
+nodeModules = buildNpmPackage rec {
+  inherit pname version;
+  src = repo;
+  inherit nodejs;
+
+  # Use the lockfile if it’s available
+  lockfile = "${src}/package-lock.json";  # Or "${src}/pnpm-lock.yaml" for pnpm
+
+  # Optional: Fake hash to bypass online checking
+  npmDepsHash = lib.fakeHash;
+
+  postPatch = ''
+    # Generate lockfile offline
+    if [ ! -f "${src}/package-lock.json" ]; then
+    #  npm install --package-lock-only --offline || \
+      pnpm install --lockfile-only --offline
+    fi
+  '';
+};
+
 in
 stdenv.mkDerivation {
   inherit pname version;
