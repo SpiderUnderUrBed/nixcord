@@ -27,6 +27,7 @@ let
   npmDeps = buildNpmPackage rec {
     pname = "vencord-deps";
     version = "1.0.0";
+    src = repo;
     nativeBuildInputs = [
       pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
       nodejs
