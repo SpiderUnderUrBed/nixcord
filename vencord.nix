@@ -10,8 +10,9 @@ let
     rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
+
   pnpmDeps = pnpm.fetchDeps {
-    pname = "${pname}-deps";
+    pname = "${pname}";
     src = repo;
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
@@ -27,7 +28,7 @@ stdenv.mkDerivation {
     git
     nodejs
     pnpm.configHook
-  ];
+  ] ++ (if pkgs.pnpm then [ pnpmDeps ] else []);
 
   env = {
     ESBUILD_BINARY_PATH = lib.getExe (
