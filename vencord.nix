@@ -1,6 +1,6 @@
 {
-  buildNpmPackage,
-  fetchgit,
+ # buildNpmPackage,
+  #fetchgit,
   curl,
   esbuild,
   fetchFromGitHub,
@@ -14,17 +14,7 @@
   writeShellScript,
   buildWebExtension ? false,
 }:
-let 
-nanoid = buildNpmPackage rec {
-  pname = "nanoid";
-  version = "5.0.8";
-  src = fetchgit {
-    url = "https://github.com/ai/nanoid.git";
-    rev = "55cd90d";
-    sha256 = "m3FDQucZywILL2CRA5Ris4Ry2YHVFbwBxZ6knz8scuA=";
-  };
-};
-in
+
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
@@ -37,6 +27,15 @@ stdenv.mkDerivation (finalAttrs: {
     rev = "v${finalAttrs.version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   });
+
+  nodeDeps = pkgs.runCommand "nodeDeps" {
+    buildInputs = [ pkgs.nodePackages.node2nix ];
+  } ''
+    mkdir -p $out
+    cp package.json package-lock.json $out
+    cd $out
+    node2nix -i ${src}/
+  '';
 
   pnpmDeps = pnpm.fetchDeps {
     inherit (finalAttrs) pname src;
@@ -80,7 +79,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     substituteInPlace ./scripts/build/common.mjs \
       --replace-warn 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
-              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "${nanoid}"]' \
+              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "${(pkgs.callPackage "${nodeDeps}/default.nix" {}).nodeDependencies}/lib/node_modules/nanoid"]' \
       --replace-warn 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
         'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, async (args) => { const fs = await import("fs"); const path = await import("path"); let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); const extensions = [".ts", ".tsx", ".js", ".jsx"]; for (const ext of extensions) { const testPath = path.resolve(resolvedPath + ext); if (fs.existsSync(testPath)) { return { path: testPath }; } } if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath = path.join(resolvedPath, "index"); for (const ext of extensions) { const testPath = resolvedPath + ext; if (fs.existsSync(testPath)) { return { path: testPath }; } } } return { path: resolvedPath }; }); } }]' \
     #  --replace-warn 'esbuild.build({' \
