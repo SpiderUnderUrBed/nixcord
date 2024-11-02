@@ -58,7 +58,7 @@ stdenv.mkDerivation (finalAttrs: {
     # TODO: somehow update this automatically
     VENCORD_HASH = "deadbeef";
   };
-{
+
   # Other configurations
 
   buildPhase = ''
