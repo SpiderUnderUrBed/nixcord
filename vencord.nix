@@ -83,8 +83,8 @@ stdenv.mkDerivation {
     git
     nodejs
     pnpm.configHook
-    pnpmDeps
-    pnpmToNPM
+  #  pnpmDeps
+   # pnpmToNPM
   ];
   #++ (if builtins.hasAttr "pnpm" pkgs then [ pnpmDeps ] else []);
 
