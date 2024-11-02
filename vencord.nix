@@ -65,7 +65,7 @@ stdenv.mkDerivation (finalAttrs: {
     rmdir src/api
     ln -sf $api src/api
     substituteInPlace ./scripts/build/common.mjs \
-      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api"]'
+      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api", "nanoid"]'
 
     runHook preBuild
 
