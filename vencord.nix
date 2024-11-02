@@ -1,4 +1,5 @@
 {
+  pkgs,
   curl,
   esbuild,
   fetchFromGitHub,
