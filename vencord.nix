@@ -1,6 +1,7 @@
 {
  # buildNpmPackage,
   #fetchgit,
+  pkgs,
   curl,
   esbuild,
   fetchFromGitHub,
