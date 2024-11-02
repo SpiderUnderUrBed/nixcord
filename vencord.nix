@@ -16,6 +16,9 @@ let
     inherit version;
     pname = "${pname}-deps";  
     src = repo;
+    nativeBuildInputs = [
+      nodejs
+    ];
     buildPhase = ''
       cp $src/package.json $out
     '';
