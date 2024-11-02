@@ -1,15 +1,10 @@
 { buildNpmPackage, fetchgit, curl, esbuild, fetchFromGitHub, git, jq, lib, nix-update, nodejs, pnpm, stdenv, writeShellScript, buildWebExtension ? false }:
-
-stdenv.mkDerivation (finalAttrs: {
-  pname = "vencord";
+let
   version = "1.10.5";
-
-  outputs = [ "out" "api" "node_modules" ];
-
-  src = fetchFromGitHub {
+  repo = fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
-    rev = "v${finalAttrs.version}";
+    rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
 
@@ -20,6 +15,14 @@ stdenv.mkDerivation (finalAttrs: {
     inherit nodejs;
     lockfile = ./pnpm-lock.yaml;  # Point to your pre-generated lock file
   };
+in
+stdenv.mkDerivation (finalAttrs: {
+  inherit version;
+  pname = "vencord";
+
+  outputs = [ "out" "api" "node_modules" ];
+
+  src = repo;
 
   nativeBuildInputs = [
     git
