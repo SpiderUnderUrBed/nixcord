@@ -65,7 +65,11 @@ stdenv.mkDerivation (finalAttrs: {
     rmdir src/api
     ln -sf $api src/api
     substituteInPlace ./scripts/build/common.mjs \
-      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]'
+      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
+              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
+      --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
+              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\\// }, args => ({ path: args.path.replace(/^@api/, "./src/api") })); } }]'
+
 
     runHook preBuild
 
