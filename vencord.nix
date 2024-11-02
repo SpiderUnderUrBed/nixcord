@@ -4,7 +4,7 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
 
-  outputs = ["out" "api" "node_modules"];
+  outputs = [ "out" "api" "node_modules" ];
 
   src = fetchFromGitHub {
     owner = "Vendicated";
@@ -13,7 +13,7 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
 
-  # This is where we add the vendored node_modules
+  # Vendored node modules using buildNpmPackage
   nodeModules = buildNpmPackage rec {
     pname = "vencord-deps";
     src = src;
@@ -24,6 +24,8 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     git
     nodejs
+    # Add nodeModules as a build input
+    nodeModules
   ];
 
   env = {
@@ -45,18 +47,17 @@ stdenv.mkDerivation (finalAttrs: {
     VENCORD_HASH = "deadbeef";
   };
 
-  buildInputs = [ nodeModules ];
-
   buildPhase = ''
     api_path=$api
-    node_module_path=$nodeModules
+    node_module_path=${nodeModules}/node_modules
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
     rmdir src/api
     ln -sf "$api_path" src/api
 
-    mkdir -p "$node_module_path"
+    # Link the pre-fetched node_modules
+    mkdir -p node_modules
     ln -sf "$node_module_path" node_modules
 
     runHook preBuild
@@ -66,8 +67,6 @@ stdenv.mkDerivation (finalAttrs: {
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
       --replace-warn 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
         'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "api-alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, async (args) => { const fs = await import("fs"); const path = await import("path"); let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); const extensions = [".ts", ".tsx", ".js", ".jsx"]; for (const ext of extensions) { const testPath = path.resolve(resolvedPath + ext); if (fs.existsSync(testPath)) { return { path: testPath }; } } if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath = path.join(resolvedPath, "index"); for (const ext of extensions) { const testPath = resolvedPath + ext; if (fs.existsSync(testPath)) { return { path: testPath }; } } } return { path: resolvedPath }; }); } }, { name: "nanoid-alias-plugin", setup(build) { build.onResolve({ filter: /^nanoid$/ }, (args) => { return { path: "$node_module_path/nanoid" }; }); } }]'  \
-    #  --replace-warn 'esbuild.build({' \
-    #         'esbuild.build({ resolveExtensions: [".ts", ".tsx", ".js", ".jsx"],'
 
     pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
      -- --standalone --disable-updater
