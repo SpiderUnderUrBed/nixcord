@@ -12,24 +12,28 @@
   writeShellScript,
   buildWebExtension ? false,
 }:
+let
+  # Fetch nanoid from npm with the specified version and store its path
+  nanoidPath = pkgs.fetchNodePackage {
+    pname = "nanoid";
+    version = "4.0.0"; # specify the version you need
+  };
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
   
   outputs = ["out" "api"];
 
- # trace = import <nixpkgs> { }.trace;
   src = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
     rev = "v${finalAttrs.version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   });
- # srcOutPath = src.outPath;
 
   pnpmDeps = pnpm.fetchDeps {
     inherit (finalAttrs) pname src;
-
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
 
@@ -55,7 +59,6 @@ stdenv.mkDerivation (finalAttrs: {
       )
     );
     VENCORD_REMOTE = "${finalAttrs.src.owner}/${finalAttrs.src.repo}";
-    # TODO: somehow update this automatically
     VENCORD_HASH = "deadbeef";
   };
 
@@ -71,7 +74,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     substituteInPlace ./scripts/build/common.mjs \
       --replace-warn 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
-              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*"]' \
+              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "${nanoidPath}"]' \
       --replace-warn 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
         'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, async (args) => { const fs = await import("fs"); const path = await import("path"); let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); const extensions = [".ts", ".tsx", ".js", ".jsx"]; for (const ext of extensions) { const testPath = path.resolve(resolvedPath + ext); if (fs.existsSync(testPath)) { return { path: testPath }; } } if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath = path.join(resolvedPath, "index"); for (const ext of extensions) { const testPath = resolvedPath + ext; if (fs.existsSync(testPath)) { return { path: testPath }; } } } return { path: resolvedPath }; }); } }]' \
       --replace-warn 'esbuild.build({' \
@@ -84,22 +87,11 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   installPhase = ''
-    #cp -r ./ $out
     runHook preInstall
-
     cp -r dist/${lib.optionalString buildWebExtension "chromium-unpacked/"} $out
-
     runHook postInstall
   '';
 
-  # fixupPhase = ''
-  #     rm -rf $out/src
-  #     mv $out/dist/* $out
-  #     rm -rf $out/dist
-  # '';
-
-  # We need to fetch the latest *tag* ourselves, as nix-update can only fetch the latest *releases* from GitHub
-  # Vencord had a single "devbuild" release that we do not care about
   passthru.updateScript = writeShellScript "update-vencord" ''
     export PATH="${
       lib.makeBinPath [
