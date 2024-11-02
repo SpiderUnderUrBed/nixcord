@@ -10,12 +10,6 @@ let
       rev = "v${version}";
       hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
-  pnpmDeps = pnpm.fetchDeps {
-    pname = "${pname}";
-    src = repo;
-    hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
-  };
-
   # pnpmToNPM = buildNpmPackage rec {
   #   pname = "pnpm-lock-to-npm-lock";
   #   version = "1.0.0";
