@@ -24,7 +24,7 @@ let
       cp $src/package.json $out
     '';
     installPhase = ''
-      npm install . --package-lock-only --force
+      npm install . --package-lock-only
     '';
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
