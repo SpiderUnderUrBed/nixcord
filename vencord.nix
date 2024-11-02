@@ -15,28 +15,29 @@
   writeShellScript,
   buildWebExtension ? false,
 }:
-
+let
+repo = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
+    owner = "Vendicated";
+    repo = "Vencord";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
+});
+nodeDeps = pkgs.runCommand "nodeDeps" {
+  buildInputs = [ pkgs.nodePackages.node2nix ];
+} ''
+  mkdir -p $out
+  cp package.json package-lock.json $out
+  cd $out
+  node2nix -i ${repo}/
+'';
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = "1.10.5";
   
   outputs = ["out" "api"];
 
-  src = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
-    owner = "Vendicated";
-    repo = "Vencord";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
-  });
-
-  nodeDeps = pkgs.runCommand "nodeDeps" {
-    buildInputs = [ pkgs.nodePackages.node2nix ];
-  } ''
-    mkdir -p $out
-    cp package.json package-lock.json $out
-    cd $out
-    node2nix -i ${src}/
-  '';
+  src = repo;
 
   pnpmDeps = pnpm.fetchDeps {
     inherit (finalAttrs) pname src;
