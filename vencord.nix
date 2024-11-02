@@ -18,12 +18,12 @@ let
   pnpmToNPM = buildNpmPackage rec {
     pname = "pnpm-lock-to-npm-lock";
     version = "1.0.0";
-    src = fetchgit {
-    url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
     npmDepsHash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
-    #ref = "main";
-    #rev = "main";  # Make sure this commit exists
-  };
+    src = fetchgit {
+      url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
+      #ref = "main";
+      #rev = "main";  # Make sure this commit exists
+    };
   };
   npmDeps = buildNpmPackage rec {
     pname = "vencord-deps";
