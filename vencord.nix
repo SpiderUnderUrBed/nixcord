@@ -60,7 +60,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   buildPhase = ''
-    api_path="$(realpath "$api")"
+    api_path=$api
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
