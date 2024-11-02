@@ -23,26 +23,21 @@ let
       repo = "pnpm-lock-to-npm-lock";
       rev = "va67f352";
     };
-    buildInputs = [ pkgs.makeWrapper ];
-
-    installPhase = ''
-      mkdir -p $out/bin
-      cp pnpm-lock-to-npm-lock.js $out/bin/pnpm-lock-to-npm-lock
-      chmod +x $out/bin/pnpm-lock-to-npm-lock
-      wrapProgram $out/bin/pnpm-lock-to-npm-lock --run "node $out/bin/pnpm-lock-to-npm-lock.js"
-    '';
+   # buildInputs = [ pkgs.makeWrapper ];
+    # installPhase = ''
+    # '';
   };
   npmDeps = buildNpmPackage rec {
     pname = "vencord-deps";
     version = "1.0.0";
     src = repo;
     nativeBuildInputs = [
-      pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
+     # pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
       nodejs
       pnpm
     ];
     postPatch = ''
-     pnpm-lock-to-npm-lock pnpm-lock.yaml
+     ${pnpmToNPM}/node_modules/pnpm-lock-to-npm-lock/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
 in
