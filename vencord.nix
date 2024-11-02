@@ -55,6 +55,8 @@ stdenv.mkDerivation {
   buildPhase = ''
     api_path=$api
     node_module_path=${nodeModules}/node_modules
+    
+    cp ${src}/package-lock.json .
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
