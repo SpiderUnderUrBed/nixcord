@@ -27,7 +27,7 @@ let
     buildInputs = [ pkgs.nodePackages.node2nix ];
   } ''
     mkdir -p $out
-    cp ${repo}/package.json ${repo}/package-lock.json $out
+    cp ${repo}/package.json $out
     cd $out
     node2nix -i package.json -o node-packages.nix
   '';
