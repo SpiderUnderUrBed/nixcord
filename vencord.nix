@@ -68,11 +68,11 @@ stdenv.mkDerivation (finalAttrs: {
     ln -sf "$api_path" src/api
     
     substituteInPlace ./scripts/build/common.mjs \
-      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
+      --replace-warn 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
-      --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { const fs = require("fs"); build.onResolve({ filter: /^@api\// }, function(args) { let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath += "/index"; } return { path: resolvedPath }; }); } }]'
-      --replace 'esbuild.build({' \
+      --replace-warn 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
+              'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { const fs = require("fs"); build.onResolve({ filter: /^@api\// }, function(args) { let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath += "/index"; } return { path: resolvedPath }; }); } }]' \
+      --replace-warn 'esbuild.build({' \
               'esbuild.build({ resolveExtensions: [".ts", ".tsx", ".js", ".jsx"],'
 
     runHook preBuild
