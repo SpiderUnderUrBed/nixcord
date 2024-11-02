@@ -18,7 +18,7 @@ let
   pnpmToNPM = buildNpmPackage rec {
     pname = "pnpm-lock-to-npm-lock";
     version = "1.0.0";
-    #npmDepsHash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+    npmDepsHash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
     src = fetchgit {
       url = "https://github.com/jakedoublev/pnpm-lock-to-npm-lock.git";
       hash = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
