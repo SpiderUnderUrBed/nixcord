@@ -64,7 +64,7 @@ stdenv.mkDerivation (finalAttrs: {
     mv src/api/* $api/
     rmdir src/api
     ln -sf $api src/api
-    substituteInPlace Vencord/scripts/build/common.mjs \
+    substituteInPlace ./scripts/build/common.mjs \
       --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api"]'
 
     runHook preBuild
