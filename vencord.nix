@@ -74,7 +74,7 @@ stdenv.mkDerivation (finalAttrs: {
               'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup(build) { build.onResolve({ filter: /^@api\//, 
                 args => { 
                   return { 
-                    path: args.path.replace(/^@api/, "'"$api_path"'") + "${}" 
+                    path: args.path.replace(/^@api/, "'"$api_path"'") 
                   }; 
                 } 
               }); }, resolveExtensions: [".ts", ".tsx", ".js", ".jsx"] }]'
