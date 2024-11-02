@@ -31,7 +31,7 @@ nodeModules = buildNpmPackage rec {
   postPatch = ''
     # Generate lockfile offline
     if [ ! -f "${src}/package-lock.json" ]; then
-      ${pkgs.pnpm}/bin/pnpm install --lockfile-only --offline
+      ${pkgs.nodejs}/bin/npm install --package-lock-only --offline
     fi
   '';
 };
