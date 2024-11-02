@@ -16,26 +16,26 @@
   buildWebExtension ? false,
 }:
 let
-version = "1.10.5";
-repo = lib.debug.traceValFn (v: "Fetched source path: ${v.outPath}") (fetchFromGitHub {
+  version = "1.10.5";
+  repo = fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
     rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
-});
-nodeDeps = pkgs.runCommand "nodeDeps" {
-  buildInputs = [ pkgs.nodePackages.node2nix ];
-} ''
-  mkdir -p $out
-  cp package.json package-lock.json $out
-  cd $out
-  node2nix -i ${repo}/
-'';
+  };
+  nodeDeps = pkgs.runCommand "nodeDeps" {
+    buildInputs = [ pkgs.nodePackages.node2nix ];
+  } ''
+    mkdir -p $out
+    cp ${repo}/package.json ${repo}/package-lock.json $out
+    cd $out
+    node2nix -i package.json -o node-packages.nix
+  '';
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
   version = version;
-  
+
   outputs = ["out" "api"];
 
   src = repo;
