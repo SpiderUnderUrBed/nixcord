@@ -17,6 +17,10 @@ let
     src = repo;
     inherit nodejs;
     lockfile = "${src}/pnpm-lock.yaml";  # Point to your pre-generated lock file
+    npmDepsHash = lib.fakeHash;
+    #postPatch = ''
+    #  touch package-lock.json
+    #'';
   };
 in
 stdenv.mkDerivation {
@@ -55,8 +59,6 @@ stdenv.mkDerivation {
   buildPhase = ''
     api_path=$api
     node_module_path=${nodeModules}/node_modules
-    
-    cp $src/package-lock.json $out/
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
