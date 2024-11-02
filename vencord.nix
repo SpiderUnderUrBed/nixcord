@@ -28,7 +28,7 @@ stdenv.mkDerivation {
     git
     nodejs
     pnpm.configHook
-  ] ++ (if pkgs.pnpm then [ pnpmDeps ] else []);
+  ] ++ (if builtins.hasAttr "pnpm" pkgs then [ pnpmDeps ] else []);
 
   env = {
     ESBUILD_BINARY_PATH = lib.getExe (
