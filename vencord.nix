@@ -9,6 +9,9 @@ let
     repo = pname;
     rev = "v${version}";
     hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
+    fetchAttrs = {
+      lockFile = "pnpm-lock.yaml";  
+    };
   };
 
   # Vendored node modules using buildNpmPackage
@@ -16,7 +19,7 @@ let
     inherit pname version;  # Ensure pname and version are inherited
     src = repo;
     inherit nodejs;
-    lockfile = ./pnpm-lock.yaml;  # Point to your pre-generated lock file
+    lockfile = "${src}/pnpm-lock.yaml";  # Point to your pre-generated lock file
   };
 in
 stdenv.mkDerivation {
