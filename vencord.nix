@@ -32,6 +32,17 @@ let
   #  src = 
 
   # Fetch and cache dependencies using pnpm
+  pnpmDeps = pkgs.pnpm.fetchDeps {
+    src = pkgs.fetchFromGitHub {
+      owner = "jakedoublev";
+      repo = "pnpm-lock-to-npm-lock";
+      rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
+      sha256 = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+    };
+    lockFile = "${src}/pnpm-lock.yaml";
+  };
+
+  # Build the `pnpm-lock-to-npm-lock` tool without requiring network access
   pnpmLockToNpmLock = pkgs.stdenv.mkDerivation rec {
     pname = "pnpm-lock-to-npm-lock";
     version = "1.0.0";
@@ -44,28 +55,33 @@ let
     };
 
     buildInputs = [ pkgs.nodejs pkgs.pnpm ];
+    NODE_PATH = "${pnpmDeps}/node_modules";  # Point to pre-fetched deps
 
-    # Install pnpm dependencies and build the package
     installPhase = ''
-      pnpm install
       mkdir -p $out/bin
-      ln -s $(pwd)/bin/pnpm-lock-to-npm-lock $out/bin/
+      # Link the binary so it can be used in later derivations
+      ln -s ${src}/bin/pnpm-lock-to-npm-lock $out/bin/
     '';
   };
 
-  # Main derivation that depends on `pnpm-lock-to-npm-lock`
+  # Main derivation using `pnpm-lock-to-npm-lock` to convert pnpm-lock.yaml to package-lock.json
   npmDeps = pkgs.stdenv.mkDerivation rec {
     pname = "vencord-deps";
     version = "1.0.0";
-    src = repo;
+    src = fetchgit {
+      url = "https://github.com/your-repo/vencord";
+      rev = "your-revision";
+      sha256 = "your-hash";
+    };
+
     nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm pnpmLockToNpmLock ];
 
-    # Use the pnpm-lock-to-npm-lock binary to convert the pnpm lockfile
+    # Convert pnpm lockfile to npm lockfile
     postPatch = ''
-      pnpm install
       ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
+  # Main derivation that depends on `pnpm-lock-to-npm-loc
 in
 stdenv.mkDerivation {
   inherit pname version owner pnpmDeps;
