@@ -66,31 +66,33 @@ stdenv.mkDerivation (finalAttrs: {
     mv src/api/* "$api_path/"
     rmdir src/api
     ln -sf "$api_path" src/api
-
+    
     substituteInPlace ./scripts/build/common.mjs \
-  --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
-          'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
-  --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-          'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "alias-plugin", setup: function(build) { build.onResolve({ filter: /^@api\\// }, function(args) { \
-              const path = args.path.replace(/^@api/, "'"$api_path"'"); \
-              const fs = require("fs"); \
-              return new Promise((resolve, reject) => { \
-                  fs.stat(path, (err, stats) => { \
-                      if (!err) { \
-                          if (stats.isDirectory()) { \
-                              resolve({ path: path + "/index.ts" }); \
-                          } else { \
-                              resolve({ path: path }); \
-                          } \
-                      } else if (err.code === "ENOENT") { \
-                          resolve({ path: path + ".tsx" }); \
-                      } else { \
-                          reject(err); \
-                      } \
-                  }); \
-              }); \
-          }); } }]'
-
+      --replace 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
+              'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
+      --replace 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
+              ''
+            "plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { \
+              name: \"alias-plugin\", \
+              setup(build) { \
+                build.onResolve({ filter: /^@api\\// }, args => { \
+                  let path = args.path.replace(/^@api\\//, \"${api_path}\"); \
+                  if (path.endsWith(\".ts\")) { \
+                    return { path: `${path}.ts` }; \
+                  } else if (path.endsWith(\".tsx\")) { \
+                    return { path: `${path}.tsx` }; \
+                  } else if (isDirectory(path)) { \
+                    if (fileExists(`${path}/index.ts`)) { \
+                      return { path: `${path}/index.ts` }; \
+                    } else if (fileExists(`${path}/index.tsx`)) { \
+                      return { path: `${path}/index.tsx` }; \
+                    } \
+                  } else { \
+                    throw new Error(`Cannot resolve module path: ${path}`); \
+                  } \
+                }); \
+              } \
+            }]"
 
     runHook preBuild
 
