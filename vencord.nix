@@ -44,7 +44,7 @@ let
   npmDeps = buildNpmPackage rec {
     pname = "vencord-deps";
     version = "1.0.0";
-    src = repo;
+    src = pnpmDeps;
     # nativeBuildInputs = [
     #  # pnpmToNPM  # pnpm-lock-to-npm-lock is now available in npmDeps environment
     #   nodejs
@@ -71,7 +71,7 @@ stdenv.mkDerivation {
     nodejs
     pnpm.configHook
     pnpmDeps
-    pnpmToNPM
+    #npmDeps
   ];
   #++ (if builtins.hasAttr "pnpm" pkgs then [ pnpmDeps ] else []);
 
