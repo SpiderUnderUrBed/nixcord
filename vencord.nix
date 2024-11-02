@@ -18,7 +18,7 @@ let
   };
 in
 stdenv.mkDerivation {
-  inherit pname version;
+  inherit pname version pnpmDeps;
 
   outputs = [ "out" "api" "node_modules" ];
 
