@@ -23,14 +23,19 @@ nodeModules = buildNpmPackage rec {
   # Optional: Fake hash to bypass online checking
   npmDepsHash = lib.fakeHash;
 
+  nativeBuildInputs = [
+   # nodejs
+    pnpm  # Ensure pnpm is available
+  ];
+
   postPatch = ''
     # Generate lockfile offline
     if [ ! -f "${src}/package-lock.json" ]; then
-    #  npm install --package-lock-only --offline || \
       pnpm install --lockfile-only --offline
     fi
   '';
 };
+
 
 in
 stdenv.mkDerivation {
