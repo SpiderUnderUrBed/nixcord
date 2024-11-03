@@ -30,7 +30,7 @@ let
     src = pnpmToNpmRepo;
 
     pnpmDeps = pnpm.fetchDeps {
-      inherit pname pnpmDeps;
+      inherit pname pnpmToNpmRepo;
 
     };
 
