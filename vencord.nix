@@ -10,12 +10,12 @@ let
       rev = "v${version}";
       hash = "sha256-pzb2x5tTDT6yUNURbAok5eQWZHaxP/RUo8T0JECKHJ4=";
   };
-  pnpmToNpmRepo = pkgs.fetchFromGitHub {
-      owner = "jakedoublev";
-      repo = "pnpm-lock-to-npm-lock";
-      rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
-      sha256 = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
-  };
+  # pnpmToNpmRepo = pkgs.fetchFromGitHub {
+  #     owner = "jakedoublev";
+  #     repo = "pnpm-lock-to-npm-lock";
+  #     rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
+  #     sha256 = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+  # };
 
   # Fetch and cache dependencies using pnpm
   # joinedDeps = pkgs.symlinkJoin {
@@ -23,27 +23,27 @@ let
   #   paths = [ repo pnpmDeps ];
   # };
   # Build the `pnpm-lock-to-npm-lock` tool without requiring network access
-  pnpmLockToNpmLock = pkgs.stdenv.mkDerivation rec {
-    pname = "pnpm-lock-to-npm-lock";
-    version = "1.0.0";
+  # pnpmLockToNpmLock = pkgs.stdenv.mkDerivation rec {
+  #   pname = "pnpm-lock-to-npm-lock";
+  #   version = "1.0.0";
 
-    src = pnpmToNpmRepo;
+  #   src = pnpmToNpmRepo;
 
-    pnpmDeps = pnpm.fetchDeps {
-      inherit pname;
-      src = pnpmToNpmRepo;
-      hash = "sha256-iK0FXof3qvkbq3f1Kxatc9fRkSxhMh8EeeWuAUIY2rU=";
-    };
+  #   pnpmDeps = pnpm.fetchDeps {
+  #     inherit pname;
+  #     src = pnpmToNpmRepo;
+  #     hash = "sha256-iK0FXof3qvkbq3f1Kxatc9fRkSxhMh8EeeWuAUIY2rU=";
+  #   };
 
-    buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pkgs.pnpm.configHook ];
+  #   buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pkgs.pnpm.configHook ];
 
-    buildPhase = ''
-      cp -r ${src}/* ./
-      pnpm build
-      mkdir -p $out
-      cp -r ./* $out/
-    '';
-  };
+  #   buildPhase = ''
+  #     cp -r ${src}/* ./
+  #     pnpm build
+  #     mkdir -p $out
+  #     cp -r ./* $out/
+  #   '';
+  # };
   # Set NODE_PATH to point to the fetched pnpm dependencies
     #NODE_PATH = "${pnpmDeps}/node_modules";
     #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
@@ -61,21 +61,21 @@ let
     #  cp -r ${src}/dist/* $out/  # Adjust if build output goes elsewhere
      # ln -s ./dist/pnpm-lock-to-npm-lock.js ./bin/pnpm-lock-to-npm-lock
   # Main derivation using `pnpm-lock-to-npm-lock` to convert pnpm-lock.yaml to package-lock.json
-  npmDeps = pkgs.buildNpmPackage rec {
-    pname = "vencord-deps";
-    version = "1.0.0";
-    src = repo;
+  # npmDeps = pkgs.buildNpmPackage rec {
+  #   pname = "vencord-deps";
+  #   version = "1.0.0";
+  #   src = repo;
 
-    #nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm ];
+  #   #nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm ];
 
-    # Convert pnpm lockfile to npm lockfile before build
-    postPatch = ''
-      export RUST_BACKTRACE=1
-      ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
-    '';
-    buildPhase = ''
-    '';
-  };
+  #   # Convert pnpm lockfile to npm lockfile before build
+  #   postPatch = ''
+  #     export RUST_BACKTRACE=1
+  #     ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
+  #   '';
+  #   buildPhase = ''
+  #   '';
+  # };
 
   # Main derivation that depends on `pnpm-lock-to-npm-loc
 in
@@ -122,7 +122,7 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     api_path=$api
-    node_module_path=${npmDeps}/node_modules
+    node_module_path=node_modules
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
