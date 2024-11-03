@@ -96,6 +96,7 @@ stdenv.mkDerivation {
     git
     nodejs
     pnpm.configHook
+    esbuild
   #  pnpmDeps
    # pnpmToNPM
   ];
@@ -133,7 +134,7 @@ stdenv.mkDerivation {
     # Link the pre-fetched node_modules
     #mkdir -p node_modules
    # ln -sf "$node_module_path" node_modules
-   
+
     mkdir -p lib/nanoid/dist
     cp -r node_modules/nanoid/* lib/nanoid
     esbuild lib/nanoid/index.js --format=esm --bundle --outfile=lib/nanoid/dist/
