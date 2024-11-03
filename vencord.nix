@@ -123,12 +123,12 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     # pwd=$(realpath "$(pwd)")
-    # api_path=$api
+    api_path=$api
 
-    # mkdir -p "$api_path"
-    # mv src/api/* "$api_path/"
-    # rmdir src/api
-    # ln -sf "$api_path" src/api
+    mkdir -p "$api_path"
+    mv src/api/* "$api_path/"
+    rmdir src/api
+    ln -sf "$api_path" src/api
 
     # # Copy nanoid files to the lib directory
     # mkdir -p lib/nanoid/dist
