@@ -74,7 +74,7 @@ stdenv.mkDerivation {
   src = repo;
 
   pnpmDeps = pnpm.fetchDeps {
-    inherit (finalAttrs) pname src;
+    inherit pname src;
 
     hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
   };
