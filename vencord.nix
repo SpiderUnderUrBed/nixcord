@@ -61,22 +61,19 @@ let
     #  cp -r ${src}/dist/* $out/  # Adjust if build output goes elsewhere
      # ln -s ./dist/pnpm-lock-to-npm-lock.js ./bin/pnpm-lock-to-npm-lock
   # Main derivation using `pnpm-lock-to-npm-lock` to convert pnpm-lock.yaml to package-lock.json
-  npmDeps = pkgs.stdenv.mkDerivation rec {
+  npmDeps = pkgs.buildNpmPackage rec {
     pname = "vencord-deps";
     version = "1.0.0";
     src = repo;
 
-    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm ];
+    #nativeBuildInputs = [ pkgs.pnpm ];
 
-    # Convert pnpm lockfile to npm lockfile
+    # Convert pnpm lockfile to npm lockfile before build
     postPatch = ''
-      mkdir -p $out
-      cp -r $src/* $out/
-      #tsc
-      #pnpm build
       node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
+
   # Main derivation that depends on `pnpm-lock-to-npm-loc
 in
 stdenv.mkDerivation {
