@@ -15,33 +15,28 @@ let
       repo = "pnpm-lock-to-npm-lock";
       rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
       sha256 = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
-    };
+  };
 
   # Fetch and cache dependencies using pnpm
-  pnpmDeps = pkgs.pnpm.fetchDeps {
-    pname = "pnpm-deps";
-    version = "1.0.0";
-    hash = "sha256-iK0FXof3qvkbq3f1Kxatc9fRkSxhMh8EeeWuAUIY2rU=pnpm.fetchDeps";
-    src = pnpmToNpmRepo;
-    lockFile = "${pnpmToNpmRepo}/pnpm-lock.yaml";
-  };
-  joinedDeps = pkgs.symlinkJoin {
-    name = "vencord-merged-deps";
-    paths = [ repo pnpmDeps ];
-  };
+  # joinedDeps = pkgs.symlinkJoin {
+  #   name = "vencord-merged-deps";
+  #   paths = [ repo pnpmDeps ];
+  # };
   # Build the `pnpm-lock-to-npm-lock` tool without requiring network access
   pnpmLockToNpmLock = pkgs.stdenv.mkDerivation rec {
     pname = "pnpm-lock-to-npm-lock";
     version = "1.0.0";
-
-    src = pkgs.fetchFromGitHub {
-      owner = "jakedoublev";
-      repo = "pnpm-lock-to-npm-lock";
-      rev = "a67f35286dfd6feba64a010e1b1005b6aa220e86";
-      sha256 = "sha256-dO1hAQduC7nyoVqWOVdc/OSfUf7atmA+zcuQhmmTmBM=";
+    pnpmDeps = pkgs.pnpm.fetchDeps {
+      pname = "pnpm-deps";
+      version = "1.0.0";
+      hash = "sha256-iK0FXof3qvkbq3f1Kxatc9fRkSxhMh8EeeWuAUIY2rU=pnpm.fetchDeps";
+      src = pnpmToNpmRepo;
+      lockFile = "${pnpmToNpmRepo}/pnpm-lock.yaml";
     };
 
-    buildInputs = [ pkgs.nodejs pkgs.pnpm ];
+    src = pnpmToNpmRepo;
+
+    buildInputs = [ pkgs.nodejs pkgs.pnpm pnpm.configHook ];
    # NODE_PATH = "${pnpmDeps}/node_modules";  # Point to pre-fetched deps
 
     installPhase = ''
@@ -56,7 +51,7 @@ let
   npmDeps = pkgs.stdenv.mkDerivation rec {
     pname = "vencord-deps";
     version = "1.0.0";
-    src = joinedDeps;
+    src = repo;
 
     nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript ];
 
@@ -65,7 +60,7 @@ let
       mkdir -p $out
       cp -r $src/* $out/
       #tsc
-      pnpm build
+      #pnpm build
       node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
