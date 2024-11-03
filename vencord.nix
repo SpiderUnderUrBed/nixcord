@@ -70,8 +70,10 @@ let
 
     # Convert pnpm lockfile to npm lockfile before build
     postPatch = ''
-      export RUST_BACKTRACE=full
+      export RUST_BACKTRACE=1
       ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
+    '';
+    buildPhase = ''
     '';
   };
 
