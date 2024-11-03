@@ -135,7 +135,7 @@ stdenv.mkDerivation {
     cp -r node_modules/nanoid/* lib/nanoid/
     esbuild lib/nanoid/index.js --format=esm --bundle --outdir=lib/nanoid/dist/
 
-    echo stuff
+    echo stuff2
 
     runHook preBuild
 
