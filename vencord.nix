@@ -59,7 +59,7 @@ let
     # Convert pnpm lockfile to npm lockfile
     postPatch = ''
       # mkdir -p $out
-      # cp $src/pnpm-lock.yaml $out/
+      cp $src/* $out/
       node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
