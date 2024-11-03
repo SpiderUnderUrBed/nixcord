@@ -67,11 +67,17 @@ let
   # Main derivation that depends on `pnpm-lock-to-npm-loc
 in
 stdenv.mkDerivation {
-  inherit pname version owner pnpmDeps;
+  inherit pname version owner;
 
   outputs = [ "out" "api" "node_modules" ];
 
   src = repo;
+
+  pnpmDeps = pnpm.fetchDeps {
+    inherit (finalAttrs) pname src;
+
+    hash = "sha256-YBWe4MEmFu8cksOIxuTK0deO7q0QuqgOUc9WkUNBwp0=";
+  };
 
   nativeBuildInputs = [
     git
