@@ -29,7 +29,7 @@ let
 
     src = pnpmToNpmRepo;
 
-    buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript ];
+    buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pkgs.pnpm.configHook ];
 
     # Set NODE_PATH to point to the fetched pnpm dependencies
     #NODE_PATH = "${pnpmDeps}/node_modules";
