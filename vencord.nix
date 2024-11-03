@@ -31,8 +31,8 @@ let
 
     pnpmDeps = pnpm.fetchDeps {
       inherit pname pnpmDeps;
-      
-    }
+
+    };
 
     buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pkgs.pnpm.configHook ];
 
