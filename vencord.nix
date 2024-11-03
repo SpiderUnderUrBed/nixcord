@@ -82,7 +82,7 @@ in
 stdenv.mkDerivation {
   inherit pname version owner;
 
-  outputs = [ "out" "api" "node_modules" ];
+  outputs = [ "out" "api" ];
 
   src = repo;
 
