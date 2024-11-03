@@ -35,7 +35,8 @@ let
     #NODE_PATH = "${pnpmDeps}/node_modules";
     #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
     #mkdir -p ${TMPDIR}/cache ${TMPDIR}/data
-    installPhase = ''
+    #installPhase
+    buildPhase = ''
       # Link dependencies into the build environment
       
 
