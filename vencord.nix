@@ -38,19 +38,20 @@ let
     buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pkgs.pnpm.configHook ];
 
     buildPhase = ''
-      # Link dependencies into the build environment
-      
+      cp -r ${src}/* ./
+      pnpm build
 
+      # Link dependencies into the build environment
       # Run the build in the source directory
-      pushd ${src}
+     # pushd ${src}
      # pnpm install  # Ensure dependencies are installed
-      pnpm build    # Run the build process
+     # pnpm build    # Run the build process
 
       # Copy built files and binaries to $out
-      popd
-      mkdir -p $out/bin
-      cp -r ${src}/dist/* $out/  # Adjust if build output goes elsewhere
-      ln -s $out/dist/pnpm-lock-to-npm-lock.js $out/bin/pnpm-lock-to-npm-lock
+    #  popd
+    #  mkdir -p $out/bin
+    #  cp -r ${src}/dist/* $out/  # Adjust if build output goes elsewhere
+      ln -s ./dist/pnpm-lock-to-npm-lock.js ./bin/pnpm-lock-to-npm-lock
     '';
   };
   # Set NODE_PATH to point to the fetched pnpm dependencies
