@@ -30,17 +30,13 @@ let
     src = pnpmToNpmRepo;
 
     pnpmDeps = pnpm.fetchDeps {
-      inherit pname pnpmToNpmRepo;
+      inherit pname;
+      src = pnpmToNpmRepo;
 
     };
 
     buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pkgs.pnpm.configHook ];
 
-    # Set NODE_PATH to point to the fetched pnpm dependencies
-    #NODE_PATH = "${pnpmDeps}/node_modules";
-    #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
-    #mkdir -p ${TMPDIR}/cache ${TMPDIR}/data
-    #installPhase
     buildPhase = ''
       # Link dependencies into the build environment
       
@@ -57,7 +53,11 @@ let
       ln -s $out/dist/pnpm-lock-to-npm-lock.js $out/bin/pnpm-lock-to-npm-lock
     '';
   };
-
+  # Set NODE_PATH to point to the fetched pnpm dependencies
+    #NODE_PATH = "${pnpmDeps}/node_modules";
+    #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
+    #mkdir -p ${TMPDIR}/cache ${TMPDIR}/data
+    #installPhase
 
   # Main derivation using `pnpm-lock-to-npm-lock` to convert pnpm-lock.yaml to package-lock.json
   npmDeps = pkgs.stdenv.mkDerivation rec {
