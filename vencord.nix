@@ -60,7 +60,7 @@ let
     postPatch = ''
       mkdir -p $out
       cp $src/pnpm-lock.yaml $out/
-      ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock $out/pnpm-lock.yaml
+      node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock $out/pnpm-lock.yaml
     '';
   };
   # Main derivation that depends on `pnpm-lock-to-npm-loc
