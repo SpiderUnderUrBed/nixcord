@@ -32,7 +32,7 @@ let
     pnpmDeps = pnpm.fetchDeps {
       inherit pname;
       src = pnpmToNpmRepo;
-
+      hash = "sha256-iK0FXof3qvkbq3f1Kxatc9fRkSxhMh8EeeWuAUIY2rU=";
     };
 
     buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pkgs.pnpm.configHook ];
