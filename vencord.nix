@@ -51,11 +51,7 @@ let
   npmDeps = pkgs.stdenv.mkDerivation rec {
     pname = "vencord-deps";
     version = "1.0.0";
-    src = fetchgit {
-      url = "https://github.com/your-repo/vencord";
-      rev = "your-revision";
-      sha256 = "your-hash";
-    };
+    src = repo;
 
     nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm pnpmLockToNpmLock ];
 
