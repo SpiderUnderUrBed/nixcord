@@ -36,7 +36,7 @@ let
 
     src = pnpmToNpmRepo;
 
-    buildInputs = [ pkgs.nodejs pkgs.pnpm pnpm.configHook ];
+    buildInputs = [ pkgs.nodejs pkgs.pnpm pnpm.configHook pkgs.typescript ];
    # NODE_PATH = "${pnpmDeps}/node_modules";  # Point to pre-fetched deps
 
     installPhase = ''
@@ -54,7 +54,7 @@ let
     version = "1.0.0";
     src = repo;
 
-    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript ];
+    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm ];
 
     # Convert pnpm lockfile to npm lockfile
     postPatch = ''
