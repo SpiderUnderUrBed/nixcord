@@ -40,7 +40,14 @@ let
     buildPhase = ''
       cp -r ${src}/* ./
       pnpm build
-
+      cp -r ./* $out/
+    '';
+  };
+  # Set NODE_PATH to point to the fetched pnpm dependencies
+    #NODE_PATH = "${pnpmDeps}/node_modules";
+    #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
+    #mkdir -p ${TMPDIR}/cache ${TMPDIR}/data
+    #installPhase
       # Link dependencies into the build environment
       # Run the build in the source directory
      # pushd ${src}
@@ -52,14 +59,6 @@ let
     #  mkdir -p $out/bin
     #  cp -r ${src}/dist/* $out/  # Adjust if build output goes elsewhere
      # ln -s ./dist/pnpm-lock-to-npm-lock.js ./bin/pnpm-lock-to-npm-lock
-    '';
-  };
-  # Set NODE_PATH to point to the fetched pnpm dependencies
-    #NODE_PATH = "${pnpmDeps}/node_modules";
-    #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
-    #mkdir -p ${TMPDIR}/cache ${TMPDIR}/data
-    #installPhase
-
   # Main derivation using `pnpm-lock-to-npm-lock` to convert pnpm-lock.yaml to package-lock.json
   npmDeps = pkgs.stdenv.mkDerivation rec {
     pname = "vencord-deps";
