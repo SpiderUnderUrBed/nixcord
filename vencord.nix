@@ -40,6 +40,7 @@ let
     buildPhase = ''
       cp -r ${src}/* ./
       pnpm build
+      mkdir -p $out
       cp -r ./* $out/
     '';
   };
