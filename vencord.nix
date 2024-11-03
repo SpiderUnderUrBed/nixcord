@@ -41,6 +41,7 @@ let
 
     installPhase = ''
       mkdir -p $out/bin
+      pnpm build
       # ln ${pnpmDeps}/node_modules $out/
       # Link the binary so it can be used in later derivations
       ln -s ${src}/bin/pnpm-lock-to-npm-lock $out/bin/
