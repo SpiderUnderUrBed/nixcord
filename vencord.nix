@@ -19,6 +19,8 @@ let
 
   # Fetch and cache dependencies using pnpm
   pnpmDeps = pkgs.pnpm.fetchDeps {
+    pname = "pnpm-deps";
+    version = "1.0.0";
     src = pnpmToNpmRepo;
     lockFile = "${pnpmToNpmRepo}/pnpm-lock.yaml";
   };
