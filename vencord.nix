@@ -51,7 +51,7 @@ let
     #  popd
     #  mkdir -p $out/bin
     #  cp -r ${src}/dist/* $out/  # Adjust if build output goes elsewhere
-      ln -s ./dist/pnpm-lock-to-npm-lock.js ./bin/pnpm-lock-to-npm-lock
+     # ln -s ./dist/pnpm-lock-to-npm-lock.js ./bin/pnpm-lock-to-npm-lock
     '';
   };
   # Set NODE_PATH to point to the fetched pnpm dependencies
