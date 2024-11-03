@@ -60,6 +60,7 @@ let
     postPatch = ''
       mkdir -p $out
       cp -r $src/* $out/
+      pnpm build
       node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
