@@ -66,7 +66,7 @@ let
     version = "1.0.0";
     src = repo;
 
-    nativeBuildInputs = [ pkgs.nodejs ];
+    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm ];
 
     # Convert pnpm lockfile to npm lockfile before build
     postPatch = ''
