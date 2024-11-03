@@ -33,10 +33,10 @@ let
 
     # Set NODE_PATH to point to the fetched pnpm dependencies
     #NODE_PATH = "${pnpmDeps}/node_modules";
-
+    #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
     installPhase = ''
       # Link dependencies into the build environment
-      #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
+
 
       # Run the build in the source directory
       pushd ${src}
