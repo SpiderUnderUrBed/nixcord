@@ -32,7 +32,7 @@ let
     buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript ];
 
     # Set NODE_PATH to point to the fetched pnpm dependencies
-    NODE_PATH = "${pnpmDeps}/node_modules";
+    #NODE_PATH = "${pnpmDeps}/node_modules";
 
     installPhase = ''
       # Link dependencies into the build environment
