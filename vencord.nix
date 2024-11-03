@@ -25,7 +25,10 @@ let
     src = pnpmToNpmRepo;
     lockFile = "${pnpmToNpmRepo}/pnpm-lock.yaml";
   };
-
+  joinedDeps = pkgs.symlinkJoin {
+    name = "vencord-merged-deps";
+    paths = [ repo pnpmDeps ];
+  };
   # Build the `pnpm-lock-to-npm-lock` tool without requiring network access
   pnpmLockToNpmLock = pkgs.stdenv.mkDerivation rec {
     pname = "pnpm-lock-to-npm-lock";
@@ -39,10 +42,11 @@ let
     };
 
     buildInputs = [ pkgs.nodejs pkgs.pnpm ];
-    NODE_PATH = "${pnpmDeps}/node_modules";  # Point to pre-fetched deps
+   # NODE_PATH = "${pnpmDeps}/node_modules";  # Point to pre-fetched deps
 
     installPhase = ''
       mkdir -p $out/bin
+      # ln ${pnpmDeps}/node_modules $out/
       # Link the binary so it can be used in later derivations
       ln -s ${src}/bin/pnpm-lock-to-npm-lock $out/bin/
     '';
@@ -52,14 +56,15 @@ let
   npmDeps = pkgs.stdenv.mkDerivation rec {
     pname = "vencord-deps";
     version = "1.0.0";
-    src = repo;
+    src = joinedDeps;
 
-    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript pnpmLockToNpmLock ];
+    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript ];
 
     # Convert pnpm lockfile to npm lockfile
     postPatch = ''
       mkdir -p $out
       cp -r $src/* $out/
+      ln ${pnpmDeps}/node_modules $out/
       tsc
       node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
