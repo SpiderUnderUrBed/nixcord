@@ -21,6 +21,7 @@ let
   pnpmDeps = pkgs.pnpm.fetchDeps {
     pname = "pnpm-deps";
     version = "1.0.0";
+    hash = "sha256-iK0FXof3qvkbq3f1Kxatc9fRkSxhMh8EeeWuAUIY2rU=pnpm.fetchDeps";
     src = pnpmToNpmRepo;
     lockFile = "${pnpmToNpmRepo}/pnpm-lock.yaml";
   };
