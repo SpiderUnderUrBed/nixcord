@@ -130,14 +130,20 @@ stdenv.mkDerivation {
     rmdir src/api
     ln -sf "$api_path" src/api
 
-    # # Copy nanoid files to the lib directory
-    # mkdir -p lib/nanoid/dist
-    # cp -r node_modules/nanoid/* lib/nanoid/
-    # esbuild lib/nanoid/index.js --format=esm --bundle --outdir=lib/nanoid/dist/
+    # Copy nanoid files to the lib directory
+    mkdir -p lib/nanoid/dist
+    cp -r node_modules/nanoid/* lib/nanoid/
+    esbuild lib/nanoid/index.js --format=esm --bundle --outdir=lib/nanoid/dist/
 
     # echo stuff3
 
     runHook preBuild
+
+    substituteInPlace ./scripts/build/common.mjs \
+        --replace-warn 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
+           'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "nanoid"]' \
+        --replace-warn 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
+            'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "nanoid-alias-plugin", setup(build) { build.onResolve({ filter: /^nanoid$/ }, async (args) => { const path = await import("path"); return { path: path.resolve("'"$pwd"'", "lib/nanoid/dist/index.js") }; }); } }]'
 
     # substituteInPlace ./scripts/build/common.mjs \
     #   --replace-warn 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
