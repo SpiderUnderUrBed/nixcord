@@ -26,27 +26,31 @@ let
   pnpmLockToNpmLock = pkgs.stdenv.mkDerivation rec {
     pname = "pnpm-lock-to-npm-lock";
     version = "1.0.0";
-    pnpmDeps = pkgs.pnpm.fetchDeps {
-      pname = "pnpm-deps";
-      version = "1.0.0";
-      hash = "sha256-iK0FXof3qvkbq3f1Kxatc9fRkSxhMh8EeeWuAUIY2rU=pnpm.fetchDeps";
-      src = pnpmToNpmRepo;
-      lockFile = "${pnpmToNpmRepo}/pnpm-lock.yaml";
-    };
 
     src = pnpmToNpmRepo;
 
-    buildInputs = [ pkgs.nodejs pkgs.pnpm pnpm.configHook pkgs.typescript ];
-   # NODE_PATH = "${pnpmDeps}/node_modules";  # Point to pre-fetched deps
+    buildInputs = [ pkgs.nodejs pkgs.pnpm pkgs.typescript ];
+
+    # Set NODE_PATH to point to the fetched pnpm dependencies
+    NODE_PATH = "${pnpmDeps}/node_modules";
 
     installPhase = ''
+      # Link dependencies into the build environment
+      export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
+
+      # Run the build in the source directory
+      pushd ${src}
+      pnpm install  # Ensure dependencies are installed
+      pnpm build    # Run the build process
+
+      # Copy built files and binaries to $out
+      popd
       mkdir -p $out/bin
-      pnpm build
-      # ln ${pnpmDeps}/node_modules $out/
-      # Link the binary so it can be used in later derivations
-      ln -s ${src}/bin/pnpm-lock-to-npm-lock $out/bin/
+      cp -r ${src}/dist/* $out/  # Adjust if build output goes elsewhere
+      ln -s $out/dist/pnpm-lock-to-npm-lock.js $out/bin/pnpm-lock-to-npm-lock
     '';
   };
+
 
   # Main derivation using `pnpm-lock-to-npm-lock` to convert pnpm-lock.yaml to package-lock.json
   npmDeps = pkgs.stdenv.mkDerivation rec {
