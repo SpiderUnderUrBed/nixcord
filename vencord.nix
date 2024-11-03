@@ -58,9 +58,9 @@ let
 
     # Convert pnpm lockfile to npm lockfile
     postPatch = ''
-      mkdir -p $out
-      cp $src/pnpm-lock.yaml $out/
-      node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock $out/pnpm-lock.yaml
+      # mkdir -p $out
+      # cp $src/pnpm-lock.yaml $out/
+      node ${pnpmLockToNpmLock}/bin/pnpm-lock-to-npm-lock pnpm-lock.yaml
     '';
   };
   # Main derivation that depends on `pnpm-lock-to-npm-loc
