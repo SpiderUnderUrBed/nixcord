@@ -122,20 +122,15 @@ stdenv.mkDerivation {
   };
 
   buildPhase = ''
-    pwd=$(pwd)
+    pwd=$(realpath "$(pwd)")
     api_path=$api
-    #node_module_path=node_modules
 
     mkdir -p "$api_path"
     mv src/api/* "$api_path/"
     rmdir src/api
     ln -sf "$api_path" src/api
 
-    #path.resolve("'"node_modules"'", "nanoid/index.js")
-    # Link the pre-fetched node_modules
-    #mkdir -p node_modules
-   # ln -sf "$node_module_path" node_modules
-
+    # Copy nanoid files to the lib directory
     mkdir -p lib/nanoid/dist
     cp -r node_modules/nanoid/* lib/nanoid/
     esbuild lib/nanoid/index.js --format=esm --bundle --outdir=lib/nanoid/dist/
@@ -146,13 +141,14 @@ stdenv.mkDerivation {
       --replace-warn 'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"]' \
               'external: ["~plugins", "~git-hash", "~git-remote", "/assets/*", "@api/*", "nanoid"]' \
       --replace-warn 'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin]' \
-        'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "api-alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, async (args) => { const fs = await import("fs"); const path = await import("path"); let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); const extensions = [".ts", ".tsx", ".js", ".jsx"]; for (const ext of extensions) { const testPath = path.resolve(resolvedPath + ext); if (fs.existsSync(testPath)) { return { path: testPath }; } } if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath = path.join(resolvedPath, "index"); for (const ext of extensions) { const testPath = resolvedPath + ext; if (fs.existsSync(testPath)) { return { path: testPath }; } } } return { path: resolvedPath }; }); } }, { name: "nanoid-alias-plugin", setup(build) { build.onResolve({ filter: /^nanoid$/ }, async (args) => { const path = await import("path"); return { path: "$pwd/lib/nanoid/index.js" }; }); } }]'  \
+        'plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, { name: "api-alias-plugin", setup(build) { build.onResolve({ filter: /^@api\// }, async (args) => { const fs = await import("fs"); const path = await import("path"); let resolvedPath = args.path.replace(/^@api/, "'"$api_path"'"); const extensions = [".ts", ".tsx", ".js", ".jsx"]; for (const ext of extensions) { const testPath = path.resolve(resolvedPath + ext); if (fs.existsSync(testPath)) { return { path: testPath }; } } if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) { resolvedPath = path.join(resolvedPath, "index"); for (const ext of extensions) { const testPath = resolvedPath + ext; if (fs.existsSync(testPath)) { return { path: testPath }; } } } return { path: resolvedPath }; }); } }, { name: "nanoid-alias-plugin", setup(build) { build.onResolve({ filter: /^nanoid$/ }, async (args) => { const path = await import("path"); return { path: path.resolve("'"$pwd"'", "lib/nanoid/index.js") }; }); } }]'  \
 
     pnpm run ${if buildWebExtension then "buildWeb" else "build"} \
     -- --standalone --disable-updater
 
     runHook postBuild
   '';
+
 
 
   installPhase = ''
