@@ -36,7 +36,7 @@ let
 
     installPhase = ''
       # Link dependencies into the build environment
-      export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
+      #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
 
       # Run the build in the source directory
       pushd ${src}
