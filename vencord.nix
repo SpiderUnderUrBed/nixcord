@@ -36,11 +36,11 @@ let
     #export NODE_PATH="${pnpmDeps}/node_modules:$NODE_PATH"
     installPhase = ''
       # Link dependencies into the build environment
-
+      #mkdir -p ${TMPDIR}/cache ${TMPDIR}/data
 
       # Run the build in the source directory
       pushd ${src}
-      pnpm install  # Ensure dependencies are installed
+     # pnpm install  # Ensure dependencies are installed
       pnpm build    # Run the build process
 
       # Copy built files and binaries to $out
