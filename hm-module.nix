@@ -6,7 +6,6 @@
 }:
 let
   cfg = config.programs.nixcord;
-
   inherit (lib)
     mkEnableOption
     mkOption
@@ -16,36 +15,129 @@ let
     attrsets
     lists
     ;
+    
+  vencordPkgs = pkgs.callPackage ./vencord.nix {
+    inherit (pkgs)
+      curl
+      esbuild
+      fetchFromGitHub
+      git
+      jq
+      lib
+      nix-update
+      nodejs
+      pnpm
+      stdenv
+      writeShellScript
+      ;
+    buildWebExtension = false;
+  };
+    
+  applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
+      postPatch = ''
+        ln -s ${userPluginsDirectory} src/userplugins
+      '';
+    });
+
+  patchedVencord = (applyPostPatch vencordPkgs);
 
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
-  recursiveUpdateAttrsList =
-    list:
-    if (builtins.length list <= 1) then
-      (builtins.elemAt list 0)
+  # Define regular expressions for GitHub and Git URLs
+  regexGithub = "github:([[:alnum:].-]+)/([[:alnum:]/-]+)/([0-9a-f]{40})";
+  regexGit = "git[+]file:///([^/]+/)*([^/?]+)(\\?ref=[a-f0-9]{40})?$";
+
+  # Define coercion functions for GitHub and Git
+  coerceGithub = value: let
+    matches = builtins.match regexGithub value;
+    owner = builtins.elemAt matches 0;
+    repo = builtins.elemAt matches 1;
+    rev = builtins.elemAt matches 2;
+  in builtins.fetchGit {
+    url = "https://github.com/${owner}/${repo}";
+    inherit rev;
+  };
+
+  coerceGit = value: let
+    # Match using regex, assuming regexGit is defined and captures groups correctly
+    matches = builtins.match regexGit value;
+
+    # Set rev only if matches are found
+    rev = if matches != null then
+      let
+        rawRev = builtins.elemAt matches 2;
+      in
+        if rawRev != null && builtins.substring 0 5 rawRev == "?ref="
+        then builtins.substring 5 (builtins.stringLength rawRev) rawRev
+        else null
+    else null;
+
+    # Set filepath only if matches are found
+    filepath = if matches != null then
+      let
+        startOffset = 4;  # Remove 4 characters from the beginning
+        endOffset = 45;   # Remove 45 characters from the end
+        fullLength = builtins.stringLength value;
+        adjustedPathLength = fullLength - startOffset - endOffset;
+      in
+        builtins.substring startOffset adjustedPathLength value
+    else null;
+
+  in if filepath != null then
+    # Call fetchGit only if filepath is valid
+    builtins.fetchGit (
+      let
+        # Only include rev if it's non-null and non-empty
+        revCondition = if rev != null && rev != "" then { rev = rev; } else {};
+      in {
+        url = filepath;
+        ref = "main";
+      } // revCondition  
+    )
+  else
+    throw "Failed to extract a valid filepath from the given value";
+
+  # Mapper function that applies coercion based on the regex match
+  pluginMapper = plugin: 
+    if builtins.match regexGithub plugin != null then
+      coerceGithub plugin
+    else if builtins.match regexGit plugin != null then
+      coerceGit plugin
+    else if lib.attrsets.isDerivation plugin then
+      plugin
     else
-      recursiveUpdateAttrsList (
-        [
-          (attrsets.recursiveUpdate (builtins.elemAt list 0) (builtins.elemAt list 1))
-        ]
-        ++ (lists.drop 2 list)
-      );
+      builtins.path { 
+        name = "plugin";
+        path = builtins.toPath plugin;
+      };
 
-  applyPostPatch =
-    pkg:
-    pkg.overrideAttrs {
-      postPatch = lib.concatLines (
-        lib.optional (cfg.userPlugins != { }) "mkdir -p src/userplugins"
-        ++ lib.mapAttrsToList (
-          name: path:
-          "ln -s ${lib.escapeShellArg path} src/userplugins/${lib.escapeShellArg name} && ls src/userplugins"
-        ) cfg.userPlugins
-      );
-    };
+  recursiveUpdateAttrsList = list:
+    if (builtins.length list <= 1) then (builtins.elemAt list 0) else
+      recursiveUpdateAttrsList ([
+        (attrsets.recursiveUpdate (builtins.elemAt list 0) (builtins.elemAt list 1))
+      ] ++ (lists.drop 2 list)); 
 
-  defaultVencord = applyPostPatch (
-    pkgs.callPackage ./vencord.nix { unstable = cfg.discord.vencord.unstable; }
-  );
+  pluginDerivations = lib.mapAttrs (_: plugin: pluginMapper plugin) cfg.userPlugins;
+  apiPath = vencordPkgs.src;
+  buildDirs = pluginDerivations: lib.mapAttrsToList (name: pluginDir:
+    let
+      fullPath = "${pluginDir}";
+
+      # Check for a Nix expression and build if present
+      buildIfExists = if builtins.pathExists "${fullPath}/default.nix" || builtins.pathExists "${fullPath}/shell.nix" then
+        import fullPath { 
+        inherit pkgs;
+        }
+
+      else
+        pluginDir;
+    in
+      # Return an attribute set with a `name` and `path` for linkFarm
+      { name = name; path = buildIfExists; }
+  ) pluginDerivations;
+  # Build the user plugins directory with linkFarm
+  userPluginsDirectory = pkgs.linkFarm "userPlugins" (buildDirs pluginDerivations);
+
 in
 {
   options.programs.nixcord = {
