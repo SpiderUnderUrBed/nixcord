@@ -5,6 +5,7 @@
 {
   esbuild,
   jq,
+  writeShellScript,
   fetchFromGitHub,
   git,
   lib,
