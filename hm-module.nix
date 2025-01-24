@@ -389,44 +389,28 @@ in
     };
   };
 
-  config =
-    let
-      parseRules = cfg.parseRules;
-      inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
-        mkVencordCfg
-        ;
 
-      vencord = applyPostPatch cfg.discord.vencord.package;
+  config = let
+    parseRules = cfg.parseRules;
+    inherit (pkgs.callPackage ./lib.nix { inherit lib parseRules; })
+      mkVencordCfg;
+    vencord = patchedVencord;
 
-      isQuickCssUsed =
-        appConfig:
-        (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss)
-        && cfg.quickCss != "";
-    in
-    mkIf cfg.enable (mkMerge [
-      {
-        assertions = [
-          {
-            assertion = !(cfg.discord.vencord.package != defaultVencord && cfg.discord.vencord.unstable);
-            message = "programs.nixcord.discord.vencord: Cannot set both 'package' and 'unstable = true'. Choose one or the other.";
-          }
-        ];
-        home.packages = [
-          (mkIf cfg.discord.enable (
-            cfg.discord.package.override {
-              withVencord = cfg.discord.vencord.enable;
-              withOpenASAR = cfg.discord.openASAR.enable;
-              inherit vencord;
-            }
-          ))
-          (mkIf cfg.vesktop.enable (
-            cfg.vesktop.package.override {
-              withSystemVencord = true;
-              inherit vencord;
-            }
-          ))
-        ];
-      }
+    isQuickCssUsed = appConfig: (cfg.config.useQuickCss || appConfig ? "useQuickCss" && appConfig.useQuickCss) && cfg.quickCss != "";
+  in mkIf cfg.enable (mkMerge [
+    {
+      home.packages = [
+        (mkIf cfg.discord.enable (cfg.discord.package.override {
+          withVencord = cfg.discord.vencord.enable;
+          withOpenASAR = cfg.discord.openASAR.enable;
+          inherit vencord;
+        }))
+        (mkIf cfg.vesktop.enable (cfg.vesktop.package.override {
+          withSystemVencord = true;
+          inherit vencord;
+        }))
+      ];
+    }
       (mkIf cfg.discord.enable (mkMerge [
         # QuickCSS
         (mkIf (isQuickCssUsed cfg.vencordConfig) {
