@@ -18,17 +18,15 @@ let
     
   vencordPkgs = pkgs.callPackage ./vencord.nix {
     inherit (pkgs)
-      curl
       esbuild
       fetchFromGitHub
       git
-      jq
       lib
-      nix-update
       nodejs
-      pnpm
+      pnpm_9
       stdenv
-      writeShellScript
+      buildWebExtension
+      unstable
       ;
     buildWebExtension = false;
   };
