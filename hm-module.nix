@@ -28,6 +28,8 @@ let
 
   dop = with types; coercedTo package (a: a.outPath) pathInStore;
 
+  regexDir = "^/.*$";
+
   # Define regular expressions for GitHub and Git URLs
   regexGithub = "github:([[:alnum:].-]+)/([[:alnum:]/-]+)/([0-9a-f]{40})";
   regexGit = "git[+]file:///([^/]+/)*([^/?]+)(\\?ref=[a-f0-9]{40})?$";
@@ -82,12 +84,17 @@ let
   else
     throw "Failed to extract a valid filepath from the given value";
 
-  # Mapper function that applies coercion based on the regex match
   pluginMapper = plugin: 
     if builtins.match regexGithub plugin != null then
       coerceGithub plugin
     else if builtins.match regexGit plugin != null then
       coerceGit plugin
+    else if builtins.match regexDir plugin != null then
+      # If it's a directory, treat it as a path in the Nix store or simply as a directory path
+      builtins.path { 
+        name = "plugin"; 
+        path = builtins.toPath plugin; 
+      }
     else if lib.attrsets.isDerivation plugin then
       plugin
     else
@@ -95,6 +102,7 @@ let
         name = "plugin";
         path = builtins.toPath plugin;
       };
+
 
   recursiveUpdateAttrsList = list:
     if (builtins.length list <= 1) then (builtins.elemAt list 0) else
