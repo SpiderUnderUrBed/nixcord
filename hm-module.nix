@@ -16,19 +16,7 @@ let
     lists
     ;
     
-  vencordPkgs = pkgs.callPackage ./vencord.nix {
-    inherit (pkgs)
-      esbuild
-      fetchFromGitHub
-      git
-      lib
-      nodejs
-      pnpm_9
-      stdenv
-      buildWebExtension
-      unstable
-      ;
-  };
+  vencordPkgs = pkgs.callPackage ./vencord.nix { unstable = cfg.discord.vencord.unstable; };
     
   applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
       postPatch = ''
