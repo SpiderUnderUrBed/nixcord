@@ -4,6 +4,7 @@
 
 {
   esbuild,
+  jq,
   fetchFromGitHub,
   git,
   lib,
