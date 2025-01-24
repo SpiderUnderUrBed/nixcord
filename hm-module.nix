@@ -28,7 +28,6 @@ let
       buildWebExtension
       unstable
       ;
-    buildWebExtension = false;
   };
     
   applyPostPatch = pkg: pkg.overrideAttrs (oldAttrs: {
